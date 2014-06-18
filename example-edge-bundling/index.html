@@ -43,6 +43,7 @@ var svg = d3.select("body").append("svg")
 d3.json("readme-flare-imports.json", function(error, classes) {
   console.log("classes");
   console.log(classes);
+  console.log(packageHierarchy(classes));
   var nodes = cluster.nodes(packageHierarchy(classes));
   console.log("nodes");
   console.log(nodes);
