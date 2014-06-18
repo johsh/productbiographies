@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>SOY+COFFEE</title>
+  <script src="js/d3.min.js"></script>
+  <script src="js/topojson.v1.min.js"></script>
+</head>
+
+<body>
+  <h1>SOY + COFFEE VIZ</h1>
+  <p>Visualisiert einen Datensatz von FAOSTAT... (soy or coffee thats the question)</p>
+  <div class="button" onclick="loadData('data-soy.csv')">SOY</div>
+  <div class="button" onclick="loadData('data-coffee.csv')">COFFEE</div>
+  <div class="button" onclick="loadData('data-coffee.csv')"></div>
+
+  <div id="container"></div>
+
+  <script>
+      // DAS HIER IST FUER DEN ZOOM
+      d3.select(window).on("resize", throttle);
+
+      var zoom = d3.behavior.zoom()
+          .scaleExtent([1, 8])
+          .on("zoom", move);
+
+      // HIER WIRD DIE ABMESSUNG (width, height)
+      // DER VISUALISIERUNG GESETZT
+      var width = document.getElementById('container').offsetWidth-60;
+      var height = width / 2;
+
+      // VARIABLEN IN DIE SPAETER DIE KARTE, 
+      // ART DER DARSTELLUNG etc. GESPEICHERT WIRD
+      var topo,projection,path,svg,g,data;
+      var countryCoordinates = {};
+
+      // DER TEXT DER ERSCHEINT, WENN DIE MAUS
+      // ÜBER EINEM LAND LIEGT
+      var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden");
+
+      // HIER WIRD DIE METHODE setup() AUSGEFUEHRT
+      // DIE METHODE WIRD DIREKT DARUNTER BESCHRIEBEN
+      // ES WIRD DIE ABMESSUNG (width, height) UEBERGEBEN
+      setup(width,height);
+
+      // HIER WIRD DIE METHODE setup() BESCHRIEBEN
+      // ALLES VON { BIS } BESCHREIBT DIE METHODE
+      // UND WIRD AUTOMATISCH AUSGEFUEHRT WENN 
+      // setup() AUFGERUFEN WIRD (wie oben).
+      function setup(width,height){
+
+        // ZUERST WIRD DIE KARTENPROJEKTION FESTGELEGT
+        // mercator IST DIE 'NORMALE' KARTENDARSTELLUNG
+        // HIER https://github.com/mbostock/d3/wiki/Geo-Projections
+        // GIBT ES NOCH ANDERE PROJEKTIONEN ZU VERDEUTLICHUNG :)
+        projection = d3.geo.mercator()
+          .translate([0, 0])
+          .scale(width / 2 / Math.PI);
+
+        // IN path WIRD GESCHRIEBEN, DASS DIE PROJEKTION
+        // VON OBEN MIT DEM NAMEN projection VERWENDET WERDEN
+        // SOLL UM DIE KARTE ZU ZEICHNEN
+        path = d3.geo.path()
+            .projection(projection);
+
+        // DAS SVG-OBJEKT MIT DEM NAMEN svg IST DIE LEINWAND
+        // AUF DIE ALLES GEZEICHNET WIRD, SO AEHNLICH WIE EINE
+        // SVG-DATEI IN ILLUSTRATOR
+        // ES WERDEN DIE ATTRIBUTE (attr) width, height etc. GESETZT
+        svg = d3.select("#container").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+            .call(zoom);
+        g = svg.append("g");
+
+      }// HIER HOERT DIE METHODE setup() AUF
+
+
+      //---
+
+
+      // JETZT WERDEN DIE WELTKARTEN-DATEN GELADEN
+      d3.json("data/world-topo.json", function(error, world) {
+
+        var countries = topojson.feature(world, world.objects.countries).features;
+        topo = countries;
+
+        // HIER WERDEN DIE MITTELPUNKTE DER LAENDER GELADEN
+        loadData("data-soy.csv");
+      }); // HIER HOERT DER DATEN-LADE-BLOCK AUF
+
+  
+      //---
+
+      function loadData(fileName){
+        d3.tsv("data/country_centroids_all.csv", function(error, centroids){
+          // HIER WERDEN DIE DATEN (DIE DAVOR VON FAOSTAT RUNTEGELADEN 
+          // WERDEN MUSSTEN) GELADEN.
+          d3.csv("data/"+fileName, function(error, _data){
+            data = _data;
+
+            // SCHREIBE IN DIE KONSOLE DES BROWSERS DAS ALLES GELADEN IST
+            console.log("loaded everyting!");
+
+            // ZEICHNE DIE WELTKARTE MIT HILFE DER METHODE 
+            // draw() DIE WEITER UNTEN BESCHRIEBEN WIRD
+            draw(topo);
+
+            // FUER JEDE ZEILE IN DEN FAOSTAT-DATEN...
+            data.forEach(function(d){
+              // SUCHE DIE LAENDER DIE ALS source UND target GENANNT WURDEN
+              // UND SPEICHERE DIE GPS KOORDINATEN IN DER LISTE MIT DEM
+              // NAMEN countryCoordinates
+              centroids.forEach(function(c){
+                if (c.SHORT_NAME==d.Source || c.FULL_NAME==d.Source){
+                  countryCoordinates[d.Source] = [c.LONG,c.LAT];
+                } else if (c.SHORT_NAME==d.Target || c.FULL_NAME==d.Target){
+                  countryCoordinates[d.Target] = [c.LONG,c.LAT];
+                }
+              });
+            });
+
+            // RUFE drawData() AUF, UM DIE FAOSTAT-DATEN 
+            // AUF DIE KARTE ZU ZEICHNEN
+            drawData();
+          });
+        });
+      }
+
+
+      // HIER WIRD DIE METHODE draw() BESCHRIEBEN,
+      // WELCHE DIE WELTKARTE ZEICHNET
+      // WIE DAS FUNKTIONIERT IST JETZT ERSTMAL 
+      // NICHT SO WICHTIG DIE BESCHRIEBUNG DER METHODE
+      // GEHT VON { BIS }
+      function draw(topo) {
+
+        var country = g.selectAll(".country").data(topo);
+
+        country.enter().insert("path")
+            .attr("class", "country")
+            .attr("d", path)
+            .attr("id", function(d,i) { return d.id; })
+            .attr("title", function(d,i) { return d.properties.name; })
+            .style("fill", function(d, i) { return d.properties.color; });
+
+        //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
+        var offsetL = document.getElementById('container').offsetLeft+(width/2)+40;
+        var offsetT =document.getElementById('container').offsetTop+(height/2)+20;
+
+        //tooltips
+        country
+          .on("mousemove", function(d,i) {
+            var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+              tooltip
+                .classed("hidden", false)
+                .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
+                .html(d.properties.name)
+            })
+            .on("mouseout",  function(d,i) {
+              tooltip.classed("hidden", true)
+            }); 
+         
+        drawData();
+      } // HIER HOERT DIE METHODE draw() AUF
+
+      //--
+
+      // ZEICHNE DEN GANZEN KRAM VON FAOSTAT
+      function drawData(){
+        d3.selectAll(".trade").remove();
+        var _data = data.filter(function(d){
+                      return  countryCoordinates[d.Source] != undefined && 
+                              countryCoordinates[d.Target] != undefined;
+                    });
+        var maxWidth = parseInt(d3.max(_data, function(d){return parseInt(d.Value);}));
+
+        // BINDE DIE FAOSTAT DATEN in _data AN ALLE 
+        // OBJEKTE MIT NAMEN .trade
+        var trade = g.selectAll(".trade")
+          .data(_data)
+          .enter()
+          // ZEICHNE DIE LINIE
+          .insert("line")
+          // VON x1,y1 NACH x2,y2
+          .attr({
+            class: "trade",
+            x1: function(d){
+              return projection(countryCoordinates[d.Source])[0];},
+            y1: function(d){
+              return projection(countryCoordinates[d.Source])[1];},
+            x2: function(d){
+              return projection(countryCoordinates[d.Target])[0];},
+            y2: function(d){
+              return projection(countryCoordinates[d.Target])[1];},
+          })
+          // DIE LINIE SOLL SCHWARZ SEIN
+          // DIE DICKE (stroke-width) VARIIERT MIT DEM WERT
+          .style({
+            stroke: "black",
+            'stroke-width': function(d){return 10*parseInt(d.Value)/maxWidth;},
+            opacity: function(d){
+              if (parseInt(d.Value)/maxWidth < .0) return 0;
+              else return 1;
+            }
+          });
+      }// HIER HOERT DIE METHODE drawData() AUF
+
+
+      //--
+
+
+      // ALLES FOLGENDE IST NICHT SO WICHTIG
+      function redraw() {
+        width = document.getElementById('container').offsetWidth-60;
+        height = width / 2;
+        d3.select('svg').remove();
+        setup(width,height);
+        draw(topo);
+      }
+
+      function move() {
+
+        var t = d3.event.translate;
+        var s = d3.event.scale;  
+        var h = height / 3;
+        
+        t[0] = Math.min(width / 2 * (s - 1), Math.max(width / 2 * (1 - s), t[0]));
+        t[1] = Math.min(height / 2 * (s - 1) + h * s, Math.max(height / 2 * (1 - s) - h * s, t[1]));
+
+        zoom.translate(t);
+        g.style("stroke-width", 1 / s).attr("transform", "translate(" + t + ")scale(" + s + ")");
+
+      }
+
+      var throttleTimer;
+      function throttle() {
+        window.clearTimeout(throttleTimer);
+          throttleTimer = window.setTimeout(function() {
+            //redraw();
+          }, 200);
+      }
+
+    </script>
+  </body>
+</html>
