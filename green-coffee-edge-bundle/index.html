@@ -151,7 +151,7 @@ d3.json("data/world-topo.json", function(error, world) {
 //EDGE BUNDLING STUFF
 var line = d3.svg.line()
     .interpolate("bundle")
-    .tension(.5)
+    .tension(.85)
     .x(function(d) { 
       return projection(d.coordinates)[0];})
     .y(function(d) { 
@@ -196,7 +196,7 @@ function packageHierarchy(data) {
       var _l = [];
       _l.push(countries[d.Source]);
       _l.push(countries[d.Source].parent);
-      _l.push(countries[d.Source].parent.parent);
+      //_l.push(countries[d.Source].parent.parent);
       _l.push(countries[d.Target].parent);
       _l.push(countries[d.Target]);
 
