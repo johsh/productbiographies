@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PRODUKTBIOGRAFIEN</title>
+
+    <link rel="stylesheet" href="resources/style.css" />
+    <script src="resources/d3.min.js"></script>
+    <script src="resources/topojson.v1.min.js"></script>
+
+  </head>
+  <body>
+
+    <h1>PRODUKT BIOGRAFIEN</h1>
+    <p>Handelsrouten von A nach B ... blablabla, src: FAOSTAT</p>
+
+    <div class="button" id="cattle" onclick="toggleCattle()">[cattle]</div>
+    <div class="button" id="chicken" onclick="toggleChicken()">[chicken]</div>
+    <div class="button" id="pig" onclick="togglePig()">[pig]</div>
+
+    <div id="map"></div>
+  <script>
+
+    //PREPARE CANVAS
+    d3.select(window).on("resize", throttle);
+
+    var zoom = d3.behavior.zoom()
+        .scaleExtent([1, 8])
+        .on("zoom", move);
+
+    var width = document.getElementById('map').offsetWidth-60;
+    var height = width / 2;
+
+    var topo,projection,path,svg,g;
+
+    //DATA WHICH WILL BE LOADED LATER
+    var data, livingAnimals, production, slaughter, consumption, population;
+
+    var countries = {};
+
+    var tooltip = d3.select("#map").append("div").attr("class", "tooltip hidden");
+
+    setup(width,height);
+
+    loadWorld();
+    loadData();
+
+
+    /*----------------------------
+      ----------------------------
+      functions loading stuff
+      ----------------------------
+      ----------------------------*/
+
+    /*
+        SETUP():
+        INITS PROJECTION + SVG ELEMENTS
+    */
+    function setup(width,height){
+      projection = d3.geo.mercator()
+        .translate([0, 0])
+        .scale(width / 2 / Math.PI);
+
+      path = d3.geo.path()
+          .projection(projection);
+
+      svg = d3.select("#map").append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g")
+          .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+          .call(zoom);
+
+      g = svg.append("g");
+    }
+
+    /*
+        LOAD WORLD()
+        LOADS WORLD DATA + COUNTRY COORDINATES 
+    */
+    function loadWorld(){
+
+      //LOAD WORLD DATA
+      d3.json("data/world-topo.json", function(error, world) {
+        var _topo = topojson.feature(world, world.objects.countries).features;
+        topo = _topo;
+        draw(topo);
+
+        d3.tsv("data/countries_all.csv", function(error, _centroids){
+          //SKIP COUNTRIES FOR WHICH NO REGION IS DEFINED
+          console.log(_centroids[0].REGION);
+          _centroids = _centroids.filter(function(c){
+            return  c.REGION != undefined && 
+                    c.REGION != " " && 
+                    c.REGION != "";
+          })
+
+          //GENERATE COUNTRY-HIERARCHY FOR EDGE BUNDLING
+
+          //MAIN COUNTRY LIST
+          countries = {};
+
+          //ADD world AS ROOT
+          var world = countries["World"] = {
+              name: "World", coordinates: [-39, 31], children: []
+          }
+
+          //STORE CONTINENT-REGIONS HERE:
+          regions = [];
+
+          //FOR EACH COUNTRY
+          _centroids.forEach(function(_c){
+
+            //STORE IT ...
+            var node = countries[_c.SHORT_NAME] = {
+              name: _c.SHORT_NAME, 
+              coordinates: [parseFloat(_c.LONG), parseFloat(_c.LAT)], children: []
+            }
+
+            //GET PARENTING REGION ...
+            var parent = countries[_c.REGION];
+            //IF NOT AVAILABLE SET IT ...
+            if (!parent){
+              console.log("parent undefined");
+              parent = countries[_c.REGION] = {
+                name: _c.REGION, coordinates: [0,0], 
+                children: [], parent: world
+              }
+              world.children.push(parent);
+              regions.push(parent);
+            }
+
+            //ADD TO REGION's COORDINATES
+            parent.coordinates[0]+=node.coordinates[0];
+            parent.coordinates[1]+=node.coordinates[1];
+
+            //ADD PARENT TO NODE, AND NODE TO PARENT
+            node.parent = parent;
+            node.parent.children.push(node);
+          });
+
+          //GET CENTER OF REGION's COORDINATES
+          regions.forEach(function(r){
+            r.coordinates[0] /= r.children.length;
+            r.coordinates[1] /= r.children.length;
+          });
+
+          //WHEN FINISHED LOAD DATA
+          loadData();
+        });
+      });
+    }
+
+    /*
+      LOADS THE DATA
+    */
+    function loadData(){
+
+      //FINALLY LOAD DATA
+
+      //DUMMY
+      d3.csv("data/data.csv", function(error, _data){
+        data = _data.filter(function(d,i){return i <20;});
+        //drawBundledEdges();
+      });
+
+      //
+      d3.csv("data/livingAnimals.csv", function(error, _data){
+        data = _data;//.filter(function(d,i){return i <20;});
+        console.log("livingAnimals loaded");
+
+        drawBundledEdges("Germany");
+      });
+    }
+
+    /*----------------------------
+      ----------------------------
+      functions toggling stuff
+      ----------------------------
+      ----------------------------*/
+
+    /* 
+        TOGGLE STUFF
+    */
+    function toggleCattle(){
+
+    }
+
+    function toggleChicken(){
+
+    }
+
+    function togglePig(){
+
+    }
+
+    /*  
+        IF A COUNTRY IS CLICKED ...
+    */
+    function clickCountry(country){
+      console.log(country.properties.name);
+      drawBundledEdges(country.properties.name);
+    }
+    
+
+
+    /*----------------------------
+      ----------------------------
+      drawing functions
+      ----------------------------
+      ----------------------------*/
+
+    //EDGE BUNDLING STUFF
+    var line = d3.svg.line()
+        .interpolate("bundle")
+        .tension(.65)
+        .x(function(d) { 
+          return projection(d.coordinates)[0];})
+        .y(function(d) { 
+          return projection(d.coordinates)[1];})
+
+    var bundle = d3.layout.bundle();
+    var links;
+
+    /*
+        DRAW BUNDLE EDGES():
+        DRAWS BUNDLED EDGES FOR ALL DATA
+        USES PACKAGE HIERARCHY
+    */
+    function drawBundledEdges(selectedCountry){
+      d3.selectAll(".link").remove();
+
+      var _data = data.filter(function(d){
+        return (d.Source == selectedCountry || d.Target == selectedCountry)
+      })
+      console.log(_data);
+
+      links = packageHierarchy(_data);
+
+      console.log("bundle");
+      console.log(links);
+
+      g.selectAll(".trade")
+        .data(links)
+        .enter().append("path")
+          .style({
+            stroke: "black",
+            "stroke-width": 2,
+            fill: "none",
+          })
+          .attr("class", "link")
+          .attr("d", function(d){
+            return line(d);
+          })
+          .call(zoom);
+    }
+
+    /*
+        PACKAGE HIERARCHY
+        PACKS DATA TO LINKS
+    */
+    function packageHierarchy(data) {
+      var links = [];
+
+      data.forEach(function(d){
+        if (countries[d.Source] != undefined &&
+            countries[d.Target] != undefined){
+
+          var _l = [];
+          _l.push(countries[d.Source]);
+          _l.push(countries[d.Source].parent);
+          //_l.push(countries[d.Source].parent.parent);
+          _l.push(countries[d.Target].parent);
+          _l.push(countries[d.Target]);
+
+          links.push(_l);
+        }
+      })
+
+      return links;
+    }
+
+    /*
+        DRAW()
+        SIMPLY DRAWS THE MAP
+    */
+    function draw(topo) {
+
+      var country = g.selectAll(".country").data(topo);
+
+      country.enter().insert("path")
+          .attr("class", "country")
+          .attr("d", path)
+          .attr("id", function(d,i) { return d.id; })
+          .attr("title", function(d,i) { return d.properties.name; })
+          .style("fill", function(d, i) { return d.properties.color; });
+
+      //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
+      var offsetL = document.getElementById('map').offsetLeft+(width/2)+40;
+      var offsetT = document.getElementById('map').offsetTop+(height/2)+20;
+
+      //tooltips
+      country
+        .on("mousemove", function(d,i) {
+          var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+            tooltip
+              .classed("hidden", false)
+              .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
+              .html(d.properties.name)
+          })
+          .on("mouseout",  function(d,i) {
+            tooltip.classed("hidden", true)
+          })
+          .on("click", function(d){ clickCountry(d); }); 
+    }
+
+    /*
+        RE-DRAWS THE MAP
+        ... EXECUTED FOR EXAMPLE WHEN WINDOW SIZE WAS CHANGED
+    */
+    function redraw() {
+      width = document.getElementById('map').offsetWidth-60;
+      height = width / 2;
+      d3.select('svg').remove();
+      setup(width,height);
+      draw(topo);
+    }
+
+    /*
+        MOVE()
+        KP WAS DIE HIER MACHT
+    */
+    function move() {
+
+      var t = d3.event.translate;
+      var s = d3.event.scale;  
+      var h = height / 3;
+      
+      t[0] = Math.min(width / 2 * (s - 1), Math.max(width / 2 * (1 - s), t[0]));
+      t[1] = Math.min(height / 2 * (s - 1) + h * s, Math.max(height / 2 * (1 - s) - h * s, t[1]));
+
+      zoom.translate(t);
+      g.style("stroke-width", 1 / s).attr("transform", "translate(" + t + ")scale(" + s + ")");
+
+    }
+
+    var throttleTimer;
+    function throttle() {
+      window.clearTimeout(throttleTimer);
+        throttleTimer = window.setTimeout(function() {
+          //redraw();
+        }, 200);
+    }
+
+    /*----------------------------
+      ----------------------------
+                helper
+      ----------------------------
+      ----------------------------*/
+
+    /*
+        COMPARES COUNTRY lowercase AND WITHOUT spaces - _ or ,
+    */
+    var replaceThis = [" ", "_", "-", ","];
+    function compare(a,b){
+      var _a = ""+a;
+      var _b = ""+b;
+
+      replaceThis.forEach(function(str){
+        _a = replaceAll(str, "", _a);
+        _b = replaceAll(str, "", _b);
+      })
+
+      return _a == _b;
+    }
+
+    //find = this has to be replaced...
+    //replace = with that str
+    //str = in this str, please
+    function replaceAll(find, replace, str) {
+      return str.replace(new RegExp(find, 'g'), replace);
+    }
+
+
+  </script>
+  </body>
+</html>
