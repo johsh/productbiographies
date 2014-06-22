@@ -14,9 +14,9 @@
     <h1>PRODUKT BIOGRAFIEN</h1>
     <p>Handelsrouten von A nach B ... blablabla, src: FAOSTAT</p>
 
-    <div class="button" id="cattle" onclick="toggleCattle()">[cattle]</div>
-    <div class="button" id="chicken" onclick="toggleChicken()">[chicken]</div>
-    <div class="button" id="pig" onclick="togglePig()">[pig]</div>
+    <div class="button selected" id="cattle" onclick="toggleCattle()">[cattle]</div>
+    <div class="button selected" id="chicken" onclick="toggleChicken()">[chicken]</div>
+    <div class="button selected" id="pig" onclick="togglePig()">[pig]</div>
 
     <div id="map"></div>
   <script>
@@ -159,19 +159,40 @@
       //FINALLY LOAD DATA
 
       //DUMMY
-      d3.csv("data/data.csv", function(error, _data){
+      /*d3.csv("data/data.csv", function(error, _data){
         data = _data.filter(function(d,i){return i <20;});
-        //drawBundledEdges();
-      });
+        //updateBundledEdges();
+      });*/
 
       //
       d3.csv("data/livingAnimals.csv", function(error, _data){
         data = _data;//.filter(function(d,i){return i <20;});
         console.log("livingAnimals loaded");
 
-        drawBundledEdges("Germany");
+        updateBundledEdges("Germany");
       });
     }
+
+    /*
+        FILTERS DATA BY FOLLOWING CRITERIA
+    */
+    var selectedCountry = "Germany";
+    var showCattle = true;
+    var showChicken = true;
+    var showPig = true;
+
+    function filterData(){
+      return data.filter(function(d){
+        return (d.Source == selectedCountry || d.Target == selectedCountry) 
+                && (
+                      (showCattle && d.Product == "Cattle") ||
+                      (showChicken && d.Product == "Chickens") ||
+                      (showPig && d.Product == "Pigs" )
+                    )
+                ;
+      })      
+    }
+
 
     /*----------------------------
       ----------------------------
@@ -183,25 +204,31 @@
         TOGGLE STUFF
     */
     function toggleCattle(){
-
+      d3.selectAll("#cattle.button").classed("selected", !showCattle);
+      showCattle = !showCattle;
+      updateBundledEdges();
     }
 
     function toggleChicken(){
-
+      d3.selectAll("#chicken.button").classed("selected", !showChicken);
+      showChicken = !showChicken;
+      updateBundledEdges();
     }
-
+   
     function togglePig(){
-
+      d3.selectAll("#pig.button").classed("selected", !showPig);
+      showPig = !showPig;
+      updateBundledEdges();
     }
 
     /*  
         IF A COUNTRY IS CLICKED ...
     */
     function clickCountry(country){
-      console.log(country.properties.name);
-      drawBundledEdges(country.properties.name);
+      selectedCountry = country.properties.name;
+      updateBundledEdges();
     }
-    
+
 
 
     /*----------------------------
@@ -209,6 +236,10 @@
       drawing functions
       ----------------------------
       ----------------------------*/
+
+    var maxValueCattle = -1;
+    var maxValueChicken = -1;
+    var maxValuePig = -1;
 
     //EDGE BUNDLING STUFF
     var line = d3.svg.line()
@@ -227,13 +258,10 @@
         DRAWS BUNDLED EDGES FOR ALL DATA
         USES PACKAGE HIERARCHY
     */
-    function drawBundledEdges(selectedCountry){
+    function updateBundledEdges(){
       d3.selectAll(".link").remove();
 
-      var _data = data.filter(function(d){
-        return (d.Source == selectedCountry || d.Target == selectedCountry)
-      })
-      console.log(_data);
+      var _data = filterData();
 
       links = packageHierarchy(_data);
 

@@ -12,6 +12,10 @@
 .hidden { 
   display: none; 
 }
+
+div {
+  margin: 2px;
+}
 div.tooltip {
   color: #222; 
   background: #fff; 
@@ -28,5 +32,12 @@ div.tooltip {
 }
 .button:hover{
   background-color: grey;
+}
+.button.selected{
+ background-color: lightgrey; 
+}
+
+.link{
+  stroke-cap: round;
 }
 
