@@ -151,7 +151,7 @@ d3.json("data/world-topo.json", function(error, world) {
 //EDGE BUNDLING STUFF
 var line = d3.svg.line()
     .interpolate("bundle")
-    .tension(.85)
+    .tension(.65)
     .x(function(d) { 
       return projection(d.coordinates)[0];})
     .y(function(d) { 
@@ -160,6 +160,7 @@ var line = d3.svg.line()
 var bundle = d3.layout.bundle();
 
 var links;
+
 function drawBundledEdges(){
   links = packageHierarchy(data);
 
@@ -270,7 +271,7 @@ function draw(topo) {
       .attr("d", path)
       .attr("id", function(d,i) { return d.id; })
       .attr("title", function(d,i) { return d.properties.name; })
-      .style("fill", "grey");//function(d, i) { return d.properties.color; });
+      .style("fill", function(d, i) { return d.properties.color; });
 
   //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
   var offsetL = document.getElementById('container').offsetLeft+(width/2)+40;
