@@ -95,6 +95,7 @@
         LOAD WORLD()
         LOADS WORLD DATA + COUNTRY COORDINATES 
     */
+
     function loadWorld(){
 
       //LOAD WORLD DATA
@@ -124,6 +125,53 @@
               children: [],
               depth: 1,
           }
+
+          //ADD CONTINENTS
+          var asia = countries["Asia"] = {
+              name: "Asia", 
+              coordinates: [-39, 31], 
+              parent: world,
+              children: [],
+              depth: 3,
+              coordinates: [43.269327, 52.337546],
+            }
+          var europe = countries["Europe"] = {
+              parent: world,
+              name: "Europe", 
+              children: [],
+              depth: 3,
+              coordinates: [11.725251, 47.407291],
+            }
+          var southAmerica = countries["South America"] = {
+              parent: world,
+              name: "South America", 
+              children: [],
+              depth: 3,
+              coordinates: [-39.954439, 3.263399],
+            }
+          var northAmerica = countries["North America"] = {
+              parent: world,
+              name: "North America", 
+              children: [],
+              depth: 3,
+              coordinates: [-71.741284, 30.936133],
+            }
+          var africa = countries["Africa"] = {
+              parent: world,
+              name: "Africa", 
+              children: [],
+              depth: 3,
+              coordinates: [-4.894734, -8.990032],
+            }
+          var oceania = countries["Australia and Oceania"] = {
+              parent: world,
+              name: "Australia and Oceania",
+              children: [],
+              depth: 3,
+              coordinates: [99.264314, -24.435121]
+            }
+
+          world.children = [asia, europe, southAmerica, northAmerica, africa, oceania];
 
           //STORE CONTINENT-REGIONS HERE:
           regions = [];
@@ -166,8 +214,10 @@
             }
 
             //ADD TO REGION's COORDINATES
+            /* already set above
             parent.coordinates[0]+=node.coordinates[0];
             parent.coordinates[1]+=node.coordinates[1];
+            */
 
             //ADD PARENT TO NODE, AND NODE TO PARENT
             node.parent = parent;
@@ -175,10 +225,12 @@
           });
 
           //GET CENTER OF REGION's COORDINATES
+          /* already set above
           regions.forEach(function(r){
             r.coordinates[0] /= r.children.length;
             r.coordinates[1] /= r.children.length;
           });
+          */
 
           //WHEN FINISHED LOAD DATA
           loadData();
@@ -366,11 +418,6 @@
         PACKAGE HIERARCHY
         PACKS DATA TO LINKS
     */
-    var asia = [43.269327, 52.337546];
-    var europe = [4.245891, 55.243611];
-    var southAmerica = [-86.457236, -26.014050];
-    var africa = [-4.894734, -8.990032];
-
     var mediterranean = {name: "Mediterranean Sea", coordinates: [14.265421, 34.224703]};
     var northAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [-41.281455, 34.659600]};
     var middleAtlanticOcean = {name: "Middle Atlantic Ocean", coordinates: [-25.812705, 0.076026]};
