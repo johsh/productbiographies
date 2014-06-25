@@ -152,6 +152,9 @@
               coordinates: [parseFloat(_c.LONG), parseFloat(_c.LAT)], 
               children: [],
               depth: 4,
+<<<<<<< HEAD
+>>>>>>> FETCH_HEAD
+=======
 >>>>>>> FETCH_HEAD
             }
 
@@ -321,7 +324,10 @@
       var _data = filterData();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> FETCH_HEAD
       //re-calc maxImport/maxExport
       maxImport = -1;
       maxExport = -1;
@@ -364,6 +370,7 @@
           
           .attr("d", function(d){
             return line(d.points);
+<<<<<<< HEAD
           })
           .on("mouseover", function(d){
 
@@ -377,6 +384,21 @@
           .on("mouseout",  function(d,i) {
             tooltip.classed("hidden", true);
           })
+=======
+          })
+          .on("mouseover", function(d){
+
+            var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+              tooltip
+                .classed("hidden", false)
+                .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
+                .html(d.data.Source + " --> " + d.data.Target + "\n"+ 
+                      d.data.Product + " = " + d.data.Value + " " + d.data.Valuetype + ": ")
+          })
+          .on("mouseout",  function(d,i) {
+            tooltip.classed("hidden", true);
+          })
+>>>>>>> FETCH_HEAD
 
           .call(zoom);
     }
@@ -498,12 +520,17 @@
           .attr("d", path)
           .attr("id", function(d,i) { return d.id; })
 <<<<<<< HEAD
+<<<<<<< HEAD
           .attr("title", function(d,i) { return d.properties.name; })            
           .style("fill", function(d, i) { return d.properties.color; });
 
       //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
       var offsetL = document.getElementById('map').offsetLeft+(width/2)+40;
       var offsetT = document.getElementById('map').offsetTop+(height/2)+20;
+=======
+          .attr("title", function(d,i) { return d.properties.name; })
+          //.style("fill", function(d, i) { return d.properties.color; });
+>>>>>>> FETCH_HEAD
 =======
           .attr("title", function(d,i) { return d.properties.name; })
           //.style("fill", function(d, i) { return d.properties.color; });
