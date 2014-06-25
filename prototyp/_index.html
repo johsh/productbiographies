@@ -185,10 +185,8 @@
             if(_c.NAME_IN_FAO_DATA != "no"){
               //IS THERE A NAME IN THE SPECIAL FAO COLUMN?
               thisName = _c.NAME_IN_FAO_DATA;
-              console.log("THIS NAME FAO: " + thisName);
             }else{
               thisName = _c.SHORT_NAME;
-              console.log("THIS NAME SHORT: " + thisName);
             }
             var node = countries[thisName] = {
               name: thisName, 
