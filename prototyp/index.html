@@ -202,6 +202,7 @@
         FILTERS DATA BY FOLLOWING CRITERIA
     */
     var selectedCountry = "Germany";
+    // TBC var selectedYear = 2011;
     var showCattle = true;
     var showChicken = true;
     var showPig = true;
@@ -303,6 +304,7 @@
         else if (d.Valuetype.toLowerCase().indexOf("export") != -1)
           maxExport = Math.max(d.Value, maxExport);
       })
+      console.log(maxImport + " " + maxExport);
 
       links = packageHierarchy(_data);
 
@@ -323,9 +325,9 @@
           .style({
             "stroke-width": function(d){ 
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
-                return Math.max(1, maxStrokeWidth*d.data.Value/maxImport);
+                return Math.max(2, maxStrokeWidth*d.data.Value/maxImport);
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
-                return Math.max(1, maxStrokeWidth*d.data.Value/maxImport);
+                return Math.max(2, maxStrokeWidth*d.data.Value/maxExport);
               
             },
             fill: "none",
@@ -354,16 +356,16 @@
         PACKAGE HIERARCHY
         PACKS DATA TO LINKS
     */
-    var asia = [43.269327, 52.337546]
-    var europe = [4.245891, 55.243611]
-    var southAmerica [-86.457236, -26.014050];
+    var asia = [43.269327, 52.337546];
+    var europe = [4.245891, 55.243611];
+    var southAmerica = [-86.457236, -26.014050];
     var africa = [-4.894734, -8.990032];
 
     var mediterranean = {name: "Mediterranean Sea", coordinates: [14.265421, 34.224703]};
     var northAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [-41.281455, 34.659600]};
     var middleAtlanticOcean = {name: "Middle Atlantic Ocean", coordinates: [-25.812705, 0.076026]};
     var southernOcean = {name: "Southern Ocean", coordinates: [23.757608, -59.762370]};
-    
+
     var indianOcean = [83.347455, -21.183604]
 
     //var middleAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [0.076026, -25.812705]};

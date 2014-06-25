@@ -1,9 +1,11 @@
-.import {
+.link.import {
   stroke: red;
 }
-
-.export {
+.link.export {
   stroke: green;
+}
+.link:hover {
+  stroke: yellow;
 }
 
 .country:hover{
