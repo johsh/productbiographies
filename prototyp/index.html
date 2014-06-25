@@ -52,6 +52,10 @@
     var countries = {};
 
     var tooltip = d3.select("#map").append("div").attr("class", "tooltip hidden");
+          //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
+      var offsetL = document.getElementById('map').offsetLeft+(width/2)+40;
+      var offsetT = document.getElementById('map').offsetTop+(height/2)+20;
+
 
     setup(width,height);
 
@@ -115,7 +119,10 @@
 
           //ADD world AS ROOT
           var world = countries["World"] = {
-              name: "World", coordinates: [-39, 31], children: []
+              name: "World", 
+              coordinates: [-39, 31], 
+              children: [],
+              depth: 1,
           }
 
           //STORE CONTINENT-REGIONS HERE:
@@ -127,7 +134,9 @@
             //STORE IT ...
             var node = countries[_c.SHORT_NAME] = {
               name: _c.SHORT_NAME, 
-              coordinates: [parseFloat(_c.LONG), parseFloat(_c.LAT)], children: []
+              coordinates: [parseFloat(_c.LONG), parseFloat(_c.LAT)], 
+              children: [],
+              depth: 4,
             }
 
             //GET PARENTING REGION ...
@@ -136,8 +145,11 @@
             if (!parent){
               console.log("parent undefined");
               parent = countries[_c.REGION] = {
-                name: _c.REGION, coordinates: [0,0], 
-                children: [], parent: world
+                name: _c.REGION, 
+                coordinates: [0,0], 
+                children: [],
+                depth: 3, 
+                parent: world,
               }
               world.children.push(parent);
               regions.push(parent);
@@ -196,7 +208,7 @@
 
     function filterData(){
       return data.filter(function(d){
-        return (d.Source == selectedCountry || d.Target == selectedCountry) 
+        return (d.Source == selectedCountry)// || d.Target == selectedCountry) 
                 && (
                       (showCattle && d.Product == "Cattle") ||
                       (showChicken && d.Product == "Chickens") ||
@@ -257,15 +269,20 @@
     //EDGE BUNDLING STUFF
     var line = d3.svg.line()
         .interpolate("bundle")
-        .tension(.65)
+        .tension(.90)
         .x(function(d) { 
-          return projection(d.coordinates)[0];})
+          return projection(d.coordinates)[0];
+        })
         .y(function(d) { 
-          return projection(d.coordinates)[1];})
+          return projection(d.coordinates)[1];
+        })
 
     var bundle = d3.layout.bundle();
     var links;
 
+    var maxImport = -1;
+    var maxExport = -1;
+    var maxStrokeWidth = 10;
     /*
         DRAW BUNDLE EDGES():
         DRAWS BUNDLED EDGES FOR ALL DATA
@@ -276,7 +293,16 @@
 
       var _data = filterData();
 
-      console.log("PRINTING _DATA:" + _data);
+      //re-calc maxImport/maxExport
+      maxImport = -1;
+      maxExport = -1;
+
+      _data.forEach(function(d){
+        if (d.Valuetype.toLowerCase().indexOf("import") != -1)
+          maxImport = Math.max(d.Value, maxImport);
+        else if (d.Valuetype.toLowerCase().indexOf("export") != -1)
+          maxExport = Math.max(d.Value, maxExport);
+      })
 
       links = packageHierarchy(_data);
 
@@ -286,19 +312,21 @@
       g.selectAll(".trade")
         .data(links)
         .enter().append("path")
-          .attr("class", "link")
+          .attr("class", function(d){
+              if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
+                return "link import";
+              else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
+                return "link export";
+              else
+                return "link neitherImportNorExport";
+          })
           .style({
             "stroke-width": function(d){ 
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
-                d3.select(this).classed("import", true);
+                return Math.max(1, maxStrokeWidth*d.data.Value/maxImport);
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
-                d3.select(this).classed("export", true);
-              else
-                console.log("error case " + d.data.Valuetype);
-
-              //d3.select(this).classed("import");
-
-              return 2;
+                return Math.max(1, maxStrokeWidth*d.data.Value/maxImport);
+              
             },
             fill: "none",
           })
@@ -306,6 +334,19 @@
           .attr("d", function(d){
             return line(d.points);
           })
+          .on("mouseover", function(d){
+
+            var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+              tooltip
+                .classed("hidden", false)
+                .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
+                .html(d.data.Source + " --> " + d.data.Target + "\n"+ 
+                      d.data.Product + " = " + d.data.Value + " " + d.data.Valuetype + ": ")
+          })
+          .on("mouseout",  function(d,i) {
+            tooltip.classed("hidden", true);
+          })
+
           .call(zoom);
     }
 
@@ -313,8 +354,27 @@
         PACKAGE HIERARCHY
         PACKS DATA TO LINKS
     */
+    var asia = [43.269327, 52.337546]
+    var europe = [4.245891, 55.243611]
+    var southAmerica [-86.457236, -26.014050];
+    var africa = [-4.894734, -8.990032];
+
+    var mediterranean = {name: "Mediterranean Sea", coordinates: [14.265421, 34.224703]};
+    var northAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [-41.281455, 34.659600]};
+    var middleAtlanticOcean = {name: "Middle Atlantic Ocean", coordinates: [-25.812705, 0.076026]};
+    var southernOcean = {name: "Southern Ocean", coordinates: [23.757608, -59.762370]};
+    
+    var indianOcean = [83.347455, -21.183604]
+
+    //var middleAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [0.076026, -25.812705]};
     function packageHierarchy(data) {
       var links = [];
+
+      var linksToEurope = [];
+      var linksToNorthAmerica = [];
+      var linksToSouthAmerica = [];
+      var linksToAfrica = [];
+      var linksToAsia = [];
 
       data.forEach(function(d){
         if (countries[d.Source] != undefined &&
@@ -325,13 +385,55 @@
             points: []
           }
 
+          // SOURCE COUNTRY
           tmp.points.push(countries[d.Source]);
-          tmp.points.push(countries[d.Source].parent);
+
+          // IF DIST SOURCE-INBETWEEN < SOURCE-TARGET
+          if (getDistance(countries[d.Source].coordinates, countries[d.Source].parent.coordinates) < 
+              getDistance(countries[d.Source].coordinates, countries[d.Target].coordinates))
+            tmp.points.push(countries[d.Source].parent);
+
+          // IF INTER CONTINENTAL
+          if (countries[d.Source].parent.name == "Europe" &&
+              countries[d.Target].parent.name == "North America"){
+          
+            tmp.points.push(northAtlanticOcean);
+            tmp.points.push(countries[d.Target].parent);
+
+          } else if (countries[d.Source].parent.name == "Europe" &&
+              countries[d.Target].parent.name == "South America"){
+          
+            tmp.points.push(northAtlanticOcean);
+            tmp.points.push(middleAtlanticOcean);
+            tmp.points.push(countries[d.Target].parent);
+
+          } else if (countries[d.Source].parent.name == "Europe" &&
+              countries[d.Target].parent.name == "Australia and Oceania"){
+          
+            tmp.points.push(northAtlanticOcean);
+            tmp.points.push(middleAtlanticOcean);
+            tmp.points.push(southernOcean);
+            tmp.points.push(countries[d.Target].parent);
+
+          } else if (countries[d.Source].parent.name == "Europe" &&
+              countries[d.Target].parent.name == "Africa"){
+
+            tmp.points.push(mediterranean);
+            //tmp.points.push(countries[d.Target].parent);
+
+          } else if (getDistance(countries[d.Source].coordinates, countries[d.Source].parent.coordinates) < 
+              getDistance(countries[d.Source].coordinates, countries[d.Target].coordinates)){
+            tmp.points.push(countries[d.Target].parent);
+          }
+                     
+
           //_l.push(countries[d.Source].parent.parent);
-          tmp.points.push(countries[d.Target].parent);
+
           tmp.points.push(countries[d.Target]);
 
           links.push(tmp);
+
+          
         }
       })
 
@@ -352,10 +454,6 @@
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
           //.style("fill", function(d, i) { return d.properties.color; });
-
-      //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
-      var offsetL = document.getElementById('map').offsetLeft+(width/2)+40;
-      var offsetT = document.getElementById('map').offsetTop+(height/2)+20;
 
       //tooltips
       country
@@ -447,6 +545,15 @@
     function replaceAll(find, replace, str) {
       return str.replace(new RegExp(find, 'g'), replace);
     }
+
+    function getDistance(p1, p2) {
+      return Math.sqrt(squared(p1[0]-p2[0]) + squared(p1[1]-p2[1]));
+    }
+
+    function squared(x){
+      return x*x;
+    }
+
 
 
   </script>
