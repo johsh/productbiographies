@@ -1,3 +1,13 @@
+.link.import {
+  stroke: red;
+}
+.link.export {
+  stroke: green;
+}
+.link:hover {
+  stroke: yellow;
+}
+
 .country:hover{
   stroke: #fff;
   stroke-width: .7px;
