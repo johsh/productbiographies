@@ -346,6 +346,7 @@
 
     var maxImport = -1;
     var maxExport = -1;
+    var zoomLineWidth = 1;
     var maxStrokeWidth = 10;
     /*
         DRAW BUNDLE EDGES():
@@ -371,9 +372,6 @@
 
       links = packageHierarchy(_data);
 
-      console.log("bundle");
-      console.log(links);
-
       g.selectAll(".trade")
         .data(links)
         .enter().append("path")
@@ -388,9 +386,9 @@
           .style({
             "stroke-width": function(d){ 
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
-                return Math.max(2, maxStrokeWidth*d.data.Value/maxImport);
+                return zoomLineWidth * Math.max(2, maxStrokeWidth * d.data.Value/maxImport);
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
-                return Math.max(2, maxStrokeWidth*d.data.Value/maxExport);
+                return zoomLineWidth * Math.max(2, maxStrokeWidth*d.data.Value/maxExport);
               
             },
             fill: "none",
@@ -603,6 +601,7 @@
         MOVE()
         KP WAS DIE HIER MACHT
     */
+
     function move() {
 
       var t = d3.event.translate;
@@ -615,6 +614,9 @@
       zoom.translate(t);
       g.style("stroke-width", 1 / s).attr("transform", "translate(" + t + ")scale(" + s + ")");
 
+
+      //zoomLineWidth = 1-s/10;
+      //updateBundledEdges();
     }
 
     var throttleTimer;
