@@ -330,9 +330,10 @@
     var maxValuePig = -1;
 
     //EDGE BUNDLING STUFF
+    var standardTension = .9;
     var line = d3.svg.line()
         .interpolate("bundle")
-        .tension(.90)
+        .tension(standardTension)
         .x(function(d) { 
           return projection(d.coordinates)[0];
         })
@@ -405,7 +406,8 @@
                 .classed("hidden", false)
                 .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
                 .html(d.data.Source + " --> " + d.data.Target + "\n"+ 
-                      d.data.Product + " = " + d.data.Value + " " + d.data.Valuetype + ": ")
+                      d.data.Product + " = " + d.data.Value + " " + d.data.Valuetype + ": "+
+                      countries[d.data.Source].parent.name + " " + countries[d.data.Target].parent.name)
           })
           .on("mouseout",  function(d,i) {
             tooltip.classed("hidden", true);
@@ -421,9 +423,8 @@
     var mediterranean = {name: "Mediterranean Sea", coordinates: [14.265421, 34.224703]};
     var northAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [-41.281455, 34.659600]};
     var middleAtlanticOcean = {name: "Middle Atlantic Ocean", coordinates: [-25.812705, 0.076026]};
-    var southernOcean = {name: "Southern Ocean", coordinates: [23.757608, -59.762370]};
-
-    var indianOcean = [83.347455, -21.183604]
+    var southernOcean = {name: "Southern Ocean", coordinates: [1.178375, -60.709734]};
+    var indianOcean = {name: "Indian Ocean", coordinates: [83.347455, -21.183604]};
 
     //var middleAtlanticOcean = {name: "Noth Atlantic Ocean", coordinates: [0.076026, -25.812705]};
     function packageHierarchy(data) {
@@ -448,46 +449,103 @@
           tmp.points.push(countries[d.Source]);
 
           // IF DIST SOURCE-INBETWEEN < SOURCE-TARGET
+          line.tension(standardTension);
+
           if (getDistance(countries[d.Source].coordinates, countries[d.Source].parent.coordinates) < 
               getDistance(countries[d.Source].coordinates, countries[d.Target].coordinates))
-            tmp.points.push(countries[d.Source].parent);
+            ;//tmp.points.push(countries[d.Source].parent);
 
-          // IF INTER CONTINENTAL
-          if (countries[d.Source].parent.name == "Europe" &&
-              countries[d.Target].parent.name == "North America"){
+          // INTRA CONTINENTAL
+          if (countries[d.Source].parent.name == countries[d.Target].parent.name)
+          {
+
+            //line.tension(.1);
+            tmp.points.push(countries[d.Target].parent);
+            ;
+
+          // EUROPE TO SOUT AMERICA
+          } else if (countries[d.Source].parent.name == "Europe" && countries[d.Target].parent.name == "South America"){
           
             tmp.points.push(northAtlanticOcean);
             tmp.points.push(countries[d.Target].parent);
 
-          } else if (countries[d.Source].parent.name == "Europe" &&
-              countries[d.Target].parent.name == "South America"){
-          
+          // SOUTH AMERICA TO EUROPE
+          } else if (countries[d.Source].parent.name == "South America" && countries[d.Target].parent.name == "Europe")
+          {
             tmp.points.push(northAtlanticOcean);
-            tmp.points.push(middleAtlanticOcean);
             tmp.points.push(countries[d.Target].parent);
 
-          } else if (countries[d.Source].parent.name == "Europe" &&
-              countries[d.Target].parent.name == "Australia and Oceania"){
+          // SOUTH AMERICA TO ASIA
+          } else if (countries[d.Source].parent.name == "South America" && countries[d.Target].parent.name == "Asia")
+          {
+
+            line.tension(standardTension);
+            //tmp.points.push(middleAtlanticOcean);
+            tmp.points.push(southernOcean);
+            tmp.points.push(indianOcean); 
+            console.log(tmp);                       
+            //tmp.points.push(countries[d.Target].parent);
+
+
+          // EUROPE or NORTH AMERICA TO OCEANIA
+          } else if ((countries[d.Source].parent.name == "Europe" || 
+                     countries[d.Source].parent.name == "North America")  &&
+              countries[d.Target].parent.name == "Australia and Oceania")
+          {
           
             tmp.points.push(northAtlanticOcean);
             tmp.points.push(middleAtlanticOcean);
             tmp.points.push(southernOcean);
             tmp.points.push(countries[d.Target].parent);
 
-          } else if (countries[d.Source].parent.name == "Europe" &&
-              countries[d.Target].parent.name == "Africa"){
+          // OCEANIA OR ASIA TO EUROPE, NORTH AMERICA OR SOUTH AMERICA
+          } else if ((countries[d.Source].parent.name == "Australia and Oceania" || 
+                      countries[d.Source].parent.name == "Asia") && 
+                     (countries[d.Target].parent.name == "Europe" || 
+                     countries[d.Target].parent.name == "North America" ||
+                     countries[d.Target].parent.name == "South America"))
+          {
+            
+            tmp.points.push(indianOcean);
+            tmp.points.push(southernOcean);
+            tmp.points.push(middleAtlanticOcean);
+            //tmp.points.push(northAtlanticOcean);
+            tmp.points.push(countries[d.Target].parent);
 
-            tmp.points.push(mediterranean);
-            //tmp.points.push(countries[d.Target].parent);
+          // EUROPE TO AFRICA
+          } else if (countries[d.Source].parent.name == "Europe" &&
+              countries[d.Target].parent.name == "Africa")
+          {
+
+            tmp.points.push(northAtlanticOcean);
+            tmp.points.push(middleAtlanticOcean);  
+            //tmp.points.push(mediterranean);
+
+          // AFRICA TO NORTH AMERICA OR EUROPE
+          } else if (countries[d.Source].parent.name == "Africa" && 
+            (countries[d.Target].parent.name == "North America" || countries[d.Target].parent.name == "Europe")){
+            
+              tmp.points.push(middleAtlanticOcean);
+              tmp.points.push(northAtlanticOcean);
+
+          // EUROPE TO NORTH AMERICA OR NORTH AMERICA TO SOUTH AMERICA
+          } else if (((countries[d.Source].parent.name == "Europe") &&
+              countries[d.Target].parent.name == "North America") ||
+              (countries[d.Source].parent.name == "North America" && 
+               countries[d.Target].parent.name != "South America"))
+          {
+          
+            tmp.points.push(northAtlanticOcean);
+            tmp.points.push(countries[d.Target].parent);
 
           } else if (getDistance(countries[d.Source].coordinates, countries[d.Source].parent.coordinates) < 
-              getDistance(countries[d.Source].coordinates, countries[d.Target].coordinates)){
+              getDistance(countries[d.Source].coordinates, countries[d.Target].coordinates))
+          {
             tmp.points.push(countries[d.Target].parent);
           }
                      
 
-          //_l.push(countries[d.Source].parent.parent);
-
+          
           tmp.points.push(countries[d.Target]);
 
           links.push(tmp);
