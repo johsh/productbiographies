@@ -1,3 +1,11 @@
+.import {
+  stroke: red;
+}
+
+.export {
+  stroke: green;
+}
+
 .country:hover{
   stroke: #fff;
   stroke-width: .7px;

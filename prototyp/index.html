@@ -5,6 +5,8 @@
     <title>PRODUKTBIOGRAFIEN</title>
 
     <link rel="stylesheet" href="resources/style.css" />
+    <link rel="stylesheet" href="resources/countries.css" />
+
     <script src="resources/d3.min.js"></script>
     <script src="resources/topojson.v1.min.js"></script>
 
@@ -284,14 +286,25 @@
       g.selectAll(".trade")
         .data(links)
         .enter().append("path")
+          .attr("class", "link")
           .style({
-            stroke: "black",
-            "stroke-width": 2,
+            "stroke-width": function(d){ 
+              if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
+                d3.select(this).classed("import", true);
+              else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
+                d3.select(this).classed("export", true);
+              else
+                console.log("error case " + d.data.Valuetype);
+
+              //d3.select(this).classed("import");
+
+              return 2;
+            },
             fill: "none",
           })
-          .attr("class", "link")
+          
           .attr("d", function(d){
-            return line(d);
+            return line(d.points);
           })
           .call(zoom);
     }
@@ -307,14 +320,18 @@
         if (countries[d.Source] != undefined &&
             countries[d.Target] != undefined){
 
-          var _l = [];
-          _l.push(countries[d.Source]);
-          _l.push(countries[d.Source].parent);
-          //_l.push(countries[d.Source].parent.parent);
-          _l.push(countries[d.Target].parent);
-          _l.push(countries[d.Target]);
+          var tmp = {
+            data: d,
+            points: []
+          }
 
-          links.push(_l);
+          tmp.points.push(countries[d.Source]);
+          tmp.points.push(countries[d.Source].parent);
+          //_l.push(countries[d.Source].parent.parent);
+          tmp.points.push(countries[d.Target].parent);
+          tmp.points.push(countries[d.Target]);
+
+          links.push(tmp);
         }
       })
 
@@ -330,11 +347,11 @@
       var country = g.selectAll(".country").data(topo);
 
       country.enter().insert("path")
-          .attr("class", "country")
+          .attr("class", function(d){ return "country " + simplifyName(d.properties.name); })
           .attr("d", path)
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
-          .style("fill", function(d, i) { return d.properties.color; });
+          //.style("fill", function(d, i) { return d.properties.color; });
 
       //ofsets plus width/height of transform, plsu 20 px of padding, plus 20 extra for tooltip offset off mouse
       var offsetL = document.getElementById('map').offsetLeft+(width/2)+40;
@@ -402,17 +419,26 @@
     /*
         COMPARES COUNTRY lowercase AND WITHOUT spaces - _ or ,
     */
-    var replaceThis = [" ", "_", "-", ","];
-    function compare(a,b){
-      var _a = ""+a;
-      var _b = ""+b;
+    /*
+      topo.forEach(function(d){
+        console.log("."+simplifyName(d.properties.name)+" {");
+        console.log("\tfill: "+d.properties.color+",");
+        console.log("}");
+        console.log("");
+      });
+    */
+    var replaceThis = [" ", "_", "-", ",", "'", "ç", "å", "é"];
+    function simplifyName(a){
+      var _a = a.toLowerCase();
 
       replaceThis.forEach(function(str){
-        _a = replaceAll(str, "", _a);
-        _b = replaceAll(str, "", _b);
+        _a = replaceAll(str, "_", _a);
       })
 
-      return _a == _b;
+      _a = _a.replace("(","-");
+      _a = _a.replace(")","-");
+
+      return _a;
     }
 
     //find = this has to be replaced...
