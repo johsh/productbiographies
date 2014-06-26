@@ -100,7 +100,9 @@
             var v = json.val;
             console.log("------ "+ c +" "+ v);
 
-            $('#portrait_bar').animate({width: v/5000 + "px",}, 500);
+            //var maximum_bar_width = 300;
+
+            $('#portrait_bar').animate({width: v/50000 + "px",}, 500);
             $('#portrait_text').text(c + " " + v + " animals traded in 2011");
 
           }             
