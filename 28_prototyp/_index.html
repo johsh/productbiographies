@@ -1,20 +1,14 @@
-<?php
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Roadtrip</title>
+    <title>PRODUKTBIOGRAFIEN</title>
 
     <link rel="stylesheet" href="resources/style.css" />
     <link rel="stylesheet" href="resources/countries.css" />
 
     <script src="resources/d3.min.js"></script>
     <script src="resources/topojson.v1.min.js"></script>
-    <script type="text/javascript" src="resources/jquery-1.10.2.min.js"></script>
-
 
   </head>
 
@@ -26,51 +20,13 @@
       font-weight: 200;
       color: #333;
     }
-    h1, h2, h3, h4, h5, h6, p{
-      font-weight: 200;
-      margin: 0px;
-      padding: 3px;
-    }
-    .portrait_container{
-      width: 100%;
-      min-height: 50px;
-      border: dotted thin #333;
-    }
-    
-    .portrait_bar{
-      width:100px; /*changes interactively*/
-      height:15px;
-      background-color:#C6FFCE;
-      white-space: nowrap;
-      }
   </style>
 
   <body>
 
-    <h1>ROADTRIP</h1>
-    <h2>Trading Farm Animals Around The World </h2>
-    <p>src: FAOSTAT</p>
-    <hr/>
-    <div class="portrait_container">
-      <!--
-      ### bar charts and values ##
-      -->
-      <div id="country"></div>
-      <div id="population" class="portrait_bar"></div>
-      <div id="cattle_import" class="portrait_bar"></div>
-      <div id="chickens_import" class="portrait_bar"></div>
-      <div id="pigs_import" class="portrait_bar"></div>
-      <hr/>
-      <div id="cattle_export" class="portrait_bar"></div>
-      <div id="chickens_export" class="portrait_bar"></div>
-      <div id="pigs_export" class="portrait_bar"></div>
-      <hr/>
-      <div id="cattle_production" class="portrait_bar"></div>
-      <div id="chickens_production" class="portrait_bar"></div>
-      <div id="pigs_production" class="portrait_bar"></div>
-      
+    <h1>PRODUKT BIOGRAFIEN</h1>
+    <p>Handelsrouten, src: FAOSTAT</p>
 
-    </div>
     <div class="button selected" id="cattle" onclick="toggleCattle()">[cattle]</div>
     <div class="button selected" id="chicken" onclick="toggleChicken()">[chicken]</div>
     <div class="button selected" id="pig" onclick="togglePig()">[pig]</div>
@@ -105,94 +61,6 @@
 
     loadWorld();
     loadData();
-    getDataFromDatabase("Germany");
-
-
-     function getDataFromDatabase(c){
-       
-        $.ajax({
-          type: 'GET',
-          url: 'getTradeData.php',
-          data: {
-            country : c,
-            showCattle : showCattle,
-            showChickens : showChicken,
-            showPigs : showPig            
-          },
-          //gender : set_gender,
-
-          success: function(data) {
-            var json = JSON.parse(data);
-            var c = json.country;
-            var v = json.import_value;
-            var p = json.population;
-            
-            var cattle_import = json.cattle_import;
-            var chickens_import = json.chickens_import;
-            var pigs_import = json.pigs_import;
-
-            var cattle_export = json.cattle_export;
-            var chickens_export = json.chickens_export;
-            var pigs_export = json.pigs_export;
-
-            var cattle_production = json.cattle_production;
-            var chickens_production = json.chickens_production;
-            var pigs_production = json.pigs_production;
-            
-            //var maximum_bar_width = 300;
-
-            //$('#portrait_bar').animate({width: v/50000 + "px",}, 500);
-
-            $('#country').html("<b>" + c + " | 2011" + "</b>");
-
-            adjust_bar_value_and_width("#population", "Population", p);
-            adjust_bar_value_and_width("#cattle_import", "Cattle (import)", cattle_import);
-            adjust_bar_value_and_width("#chickens_import", "Chickens (import)", chickens_import);
-            adjust_bar_value_and_width("#pigs_import", "Pigs (import)", pigs_import);
-
-            adjust_bar_value_and_width("#cattle_export", "Cattle (export)", cattle_export);
-            adjust_bar_value_and_width("#chickens_export", "Chickens (export)", chickens_export);
-            adjust_bar_value_and_width("#pigs_export", "Pigs (export)", pigs_export);
-
-            adjust_bar_value_and_width("#cattle_production", "Cattle produced", cattle_production);
-            adjust_bar_value_and_width("#chickens_production", "Chickens produced", chickens_production);
-            adjust_bar_value_and_width("#pigs_production", "Pigs produced", pigs_production);
-/*
-            $('#population')
-            .append("Population " + p)
-            .animate({width: p/900000 + "px"},500);
-
-*/
-
-
-
-/*
-            $('#portrait_text').append("<hr/> <br/> <b>" + "Total Import" + "</b>");
-            $('#portrait_text').append("<br/>" + cattle_import + " cattle");
-            $('#portrait_text').append("<br/>" + chickens_import + " chicken");
-            $('#portrait_text').append("<br/>" + pigs_import + " pig");
-
-            $('#portrait_text').append("<hr/> <br/> <b>" + "Total Export" + "</b>");
-            $('#portrait_text').append("<br/>" + cattle_export + " cattle");
-            $('#portrait_text').append("<br/>" + chickens_export + " chickens");
-            $('#portrait_text').append("<br/>" + pigs_export + " pigs");
-
-            $('#portrait_text').append("<br/>" + "<div>" + " test test test test test test test test " + "</div>");
-
-*/
-
-
-          }             
-        });  
-        
-    }
-
-            function adjust_bar_value_and_width(this_id, text, value){
-              $(this_id)
-                .html(text + " " + value)
-                .animate({width: value/700000 + "px"},500);
-            }
-            
 
 
     /*----------------------------
@@ -395,7 +263,6 @@
     */
     var selectedCountry = "Germany";
     // TBC var selectedYear = 2011;
-    
     var showCattle = true;
     var showChicken = true;
     var showPig = true;
@@ -445,7 +312,6 @@
     */
     function clickCountry(country){
       selectedCountry = country.properties.name;
-      getDataFromDatabase(selectedCountry);
       updateBundledEdges();
     }
 
@@ -700,7 +566,6 @@
           .attr("d", path)
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
-          .style("fill", "#666");
           //.style("fill", function(d, i) { return d.properties.color; });
 
       //tooltips

@@ -19,7 +19,6 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	
 	$cattle_import = $chickens_import = $pigs_import
 	= $cattle_export = $chickens_export = $pigs_export 
-	= $cattle_production = $chickens_production = $pigs_production
 	= 0;
 
 	/*
@@ -73,25 +72,25 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 
 		if($this_item == "Cattle"){
 			if( filter_trade_mode($this_element, "export") ){
-				$cattle_export = adjust_value($this_element, $this_value, 2);
+				$cattle_export = adjust_value($this_element, $this_value);
 			}else if( filter_trade_mode($this_element, "import") ){
-				$cattle_import = adjust_value($this_element, $this_value, 2);
+				$cattle_import = adjust_value($this_element, $this_value);
 			}
 		}
 
 		if($this_item == "Chickens"){
 			if( filter_trade_mode($this_element, "export") ){
-				$chickens_export = adjust_value($this_element, $this_value, 2);
+				$chickens_export = adjust_value($this_element, $this_value);
 			}else if( filter_trade_mode($this_element, "import") ){
-				$chickens_import = adjust_value($this_element, $this_value, 2);
+				$chickens_import = adjust_value($this_element, $this_value);
 			}
 		}
 
 		if($this_item == "Pigs"){
 			if( filter_trade_mode($this_element, "export") ){
-				$pigs_export = adjust_value($this_element, $this_value, 2);
+				$pigs_export = adjust_value($this_element, $this_value);
 			}else if( filter_trade_mode($this_element, "import") ){
-				$pigs_import = adjust_value($this_element, $this_value, 2);
+				$pigs_import = adjust_value($this_element, $this_value);
 			}
 		}
 		
@@ -120,44 +119,14 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		
 	}
 
-/*	
-	REQUEST: PRODUCTION
-	------------------
-*/
-	$sql_production = "SELECT Country, Value, Element, Item FROM production WHERE Country = '$set_country' && Year = '$set_year'";
-	
-	$result_production = mysql_query($sql_production, $link);
 
-		if (!$result_production) {
-		    echo "DB Fehler, konnte die Datenbank nicht abfragen\n";
-		    echo 'MySQL Error: ' . mysql_error();
-		    exit;
-		}
-
-	while ($row = mysql_fetch_assoc($result_production)) {
-
-		$production_element = $row['Element']; 
-		$production_item = $row['Item'];
-		$production_value = $row['Value'];
-
-		if($production_item == "Cattle"){
-			$cattle_production = adjust_value($production_element, $production_value, 1);
-		}	
-		if($production_item == "Chickens"){
-			$chickens_production = adjust_value($production_element, $production_value, 1);
-		}	
-		if($production_item == "Pigs"){
-			$pigs_production = adjust_value($production_element, $production_value, 1);
-		}		
-	}
-
-
-	function adjust_value($element_to_filter, $element_value, $index){
+	function adjust_value($element_to_filter, $element_value){
 		/*
 		value * 1000 if necessary
 		*/
 		$element_array = explode(" ", $element_to_filter);
-		$unit = $element_array[$index];
+		$element_trade_mode = $element_array[0];
+		$unit = $element_array[2];
 		if($unit == "(1000" ){
 			$element_value = $element_value * 1000;					
 		}
@@ -190,10 +159,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	"chickens_import" => $chickens_import,
 	"chickens_export" => $chickens_export,
 	"pigs_import" => $pigs_import,
-	"pigs_export" => $pigs_export,
-	"cattle_production" => $cattle_production,
-	"chickens_production" => $chickens_production,
-	"pigs_production" => $pigs_production
+	"pigs_export" => $pigs_export
 		);
 
 	echo json_encode($a);	

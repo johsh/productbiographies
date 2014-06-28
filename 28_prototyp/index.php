@@ -64,10 +64,6 @@
       <div id="cattle_export" class="portrait_bar"></div>
       <div id="chickens_export" class="portrait_bar"></div>
       <div id="pigs_export" class="portrait_bar"></div>
-      <hr/>
-      <div id="cattle_production" class="portrait_bar"></div>
-      <div id="chickens_production" class="portrait_bar"></div>
-      <div id="pigs_production" class="portrait_bar"></div>
       
 
     </div>
@@ -134,10 +130,6 @@
             var cattle_export = json.cattle_export;
             var chickens_export = json.chickens_export;
             var pigs_export = json.pigs_export;
-
-            var cattle_production = json.cattle_production;
-            var chickens_production = json.chickens_production;
-            var pigs_production = json.pigs_production;
             
             //var maximum_bar_width = 300;
 
@@ -153,10 +145,6 @@
             adjust_bar_value_and_width("#cattle_export", "Cattle (export)", cattle_export);
             adjust_bar_value_and_width("#chickens_export", "Chickens (export)", chickens_export);
             adjust_bar_value_and_width("#pigs_export", "Pigs (export)", pigs_export);
-
-            adjust_bar_value_and_width("#cattle_production", "Cattle produced", cattle_production);
-            adjust_bar_value_and_width("#chickens_production", "Chickens produced", chickens_production);
-            adjust_bar_value_and_width("#pigs_production", "Pigs produced", pigs_production);
 /*
             $('#population')
             .append("Population " + p)
