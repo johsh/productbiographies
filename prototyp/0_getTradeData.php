@@ -16,29 +16,23 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 */
 	$set_country = addslashes($_GET['country']);
 	$set_year = 2011;
-	
-	$cattle_import = $chickens_import = $pigs_import
-	= $cattle_export = $chickens_export = $pigs_export 
-	= 0;
-
-	/*
 	$showCattle = $_GET['showCattle'];
 	if($showCattle == true){
 		$set_cattle = "Cattle";
-	};
+	}
 	$showChickens = $_GET['showChickens'];
 	$showPigs = $_GET['showPigs'];
 
 	function setAnimal(){
 
 	}
-*/
+
 /*
 	## REQUEST CLAUSES ##
 */
 	//$priority_clause = "(priority1=" . $set_priority1 . " OR priority6=" . $set_priority1.")";
 	//$animal_clause = "(Item=" . $set_cattle . " OR Item=" . $set_chickens. " OR Item=" . $set_pigs.")";
-	//$animal_clause = "(Item = 'Cattle' OR Item = 'Chickens' OR Item = 'Pigs')";
+	$animal_clause = "(Item = 'Cattle' OR Item = 'Chickens' OR Item = 'Pigs')";
 
 
 /*	
@@ -51,7 +45,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	REQUEST: TRADE
 	------------------
 */
-	$sql_trade = "SELECT Country, Value, Item, Element FROM trade WHERE Country = '$set_country' && Year = '$set_year'";//Item = 'Chickens'";
+	$sql_trade = "SELECT Country, Value, Item, Element FROM trade WHERE Country = '$set_country' && Year = '$set_year' && $animal_clause";//Item = 'Chickens'";
 
 
 	$result_trade = mysql_query($sql_trade, $link);
@@ -68,32 +62,9 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 */
 		$this_element = $row['Element']; 
 		$this_item = $row['Item']; 
-		$this_value = $row['Value'];
-
-		if($this_item == "Cattle"){
-			if( filter_trade_mode($this_element, "export") ){
-				$cattle_export = adjust_value($this_element, $this_value);
-			}else if( filter_trade_mode($this_element, "import") ){
-				$cattle_import = adjust_value($this_element, $this_value);
-			}
-		}
-
-		if($this_item == "Chickens"){
-			if( filter_trade_mode($this_element, "export") ){
-				$chickens_export = adjust_value($this_element, $this_value);
-			}else if( filter_trade_mode($this_element, "import") ){
-				$chickens_import = adjust_value($this_element, $this_value);
-			}
-		}
-
-		if($this_item == "Pigs"){
-			if( filter_trade_mode($this_element, "export") ){
-				$pigs_export = adjust_value($this_element, $this_value);
-			}else if( filter_trade_mode($this_element, "import") ){
-				$pigs_import = adjust_value($this_element, $this_value);
-			}
-		}
 		
+		$this_value = $row['Value']; 
+		$this_value = filter_element($this_element, $this_value, "import");
 	}
 
 
@@ -120,46 +91,42 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	}
 
 
-	function adjust_value($element_to_filter, $element_value){
-		/*
-		value * 1000 if necessary
-		*/
-		$element_array = explode(" ", $element_to_filter);
-		$element_trade_mode = $element_array[0];
-		$unit = $element_array[2];
-		if($unit == "(1000" ){
-			$element_value = $element_value * 1000;					
-		}
-		return $element_value;									
-	}
-	
 
-	function filter_trade_mode($element_to_filter, $requested_trade_mode){
+
+
+
+	function filter_element($element_to_filter, $element_value, $requested_trade_mode){
 		/*
-		Checks for the requested trade-mode (import/export) and returns boolean
+		Checks for the requested trade-mode (import/export) and returns the absolute/refined value
 		*/
 		$element_trade_mode = strtolower($element_to_filter); //export quantity (1000 head)
 		$element_array = explode(" ", $element_trade_mode);
 		$element_trade_mode = $element_array[0];
+
 		$requested_trade_mode = strtolower($requested_trade_mode); //export
 		
-		return ($element_trade_mode == $requested_trade_mode);
 
+		// compare request and element trade-mode
+		if($element_trade_mode == $requested_trade_mode){
+			$unit = $element_array[2];
+			if($unit == "(1000"){
+				// Value times 1000 when unit is (1000 head)	
+				$element_value = $element_value * 1000;
+				return $element_value;
+			}
+		}else{
+			return "0";
+		}
 	}
 
-	$total_import = $cattle_import + $chickens_import + $pigs_import;
+
 	$a = array(
-	"import_value" => $total_import,
-	"item" => $this_item,
+	"val" => $this_value,
 	"country" => $set_country,
-	"year" => $set_year,
 	"population" => $this_population,
-	"cattle_import" => $cattle_import,
-	"cattle_export" => $cattle_export,
-	"chickens_import" => $chickens_import,
-	"chickens_export" => $chickens_export,
-	"pigs_import" => $pigs_import,
-	"pigs_export" => $pigs_export
+	"cattle" => $showCattle,
+	"chickens" => $showChickens,
+	"pigs" => $showPigs
 		);
 
 	echo json_encode($a);	

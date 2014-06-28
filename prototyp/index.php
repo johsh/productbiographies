@@ -6,7 +6,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>PRODUKTBIOGRAFIEN</title>
+    <title>Roadtrip</title>
 
     <link rel="stylesheet" href="resources/style.css" />
     <link rel="stylesheet" href="resources/countries.css" />
@@ -26,13 +26,18 @@
       font-weight: 200;
       color: #333;
     }
+    h1, h2, h3, h4, h5, h6, p{
+      font-weight: 200;
+      margin: 0px;
+      padding: 3px;
+    }
     .portrait_container{
       width: 100%;
-      height: 50px;
+      min-height: 50px;
       border: dotted thin #333;
     }
     #portrait_bar, #portrait_text{
-      height: 20px;
+      min-height: 20px;
       background-color: #999;
       border: dotted thin #333;
       width: 500px; /*changes interactively*/
@@ -41,8 +46,10 @@
 
   <body>
 
-    <h1>PRODUKT BIOGRAFIEN</h1>
-    <p>Handelsrouten, src: FAOSTAT</p>
+    <h1>ROADTRIP</h1>
+    <h2>Trading Farm Animals Around The World </h2>
+    <p>src: FAOSTAT</p>
+    <hr/>
     <div class="portrait_container">  
       <div id="portrait_bar"></div>
       <div id="portrait_text" style="background-color:#fff"></div>
@@ -91,19 +98,42 @@
           url: 'getTradeData.php',
           data: {
             country : c,
+            showCattle : showCattle,
+            showChickens : showChicken,
+            showPigs : showPig            
           },
           //gender : set_gender,
 
           success: function(data) {
             var json = JSON.parse(data);
             var c = json.country;
-            var v = json.val;
-            console.log("------ "+ c +" "+ v);
+            var v = json.import_value;
+            var p = json.population;
+            
+            var cattle_import = json.cattle_import;
+            var chickens_import = json.chickens_import;
+            var pigs_import = json.pigs_import;
 
+            var cattle_export = json.cattle_export;
+            var chickens_export = json.chickens_export;
+            var pigs_export = json.pigs_export;
+            
             //var maximum_bar_width = 300;
 
             $('#portrait_bar').animate({width: v/50000 + "px",}, 500);
-            $('#portrait_text').text(c + " " + v + " animals traded in 2011");
+            $('#portrait_text').html("<b>" + c + " | 2011" + "</b>");
+            $('#portrait_text').append("<br/>" + p + " population");
+
+            $('#portrait_text').append("<hr/> <br/> <b>" + "Total Import" + "</b>");
+            $('#portrait_text').append("<br/>" + cattle_import + " cattle");
+            $('#portrait_text').append("<br/>" + chickens_import + " chicken");
+            $('#portrait_text').append("<br/>" + pigs_import + " pig");
+
+            $('#portrait_text').append("<hr/> <br/> <b>" + "Total Export" + "</b>");
+            $('#portrait_text').append("<br/>" + cattle_export + " cattle");
+            $('#portrait_text').append("<br/>" + chickens_export + " chickens");
+            $('#portrait_text').append("<br/>" + pigs_export + " pigs");
+
 
           }             
         });  
@@ -311,6 +341,7 @@
     */
     var selectedCountry = "Germany";
     // TBC var selectedYear = 2011;
+    
     var showCattle = true;
     var showChicken = true;
     var showPig = true;
@@ -615,6 +646,7 @@
           .attr("d", path)
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
+          .style("fill", "#666");
           //.style("fill", function(d, i) { return d.properties.color; });
 
       //tooltips
