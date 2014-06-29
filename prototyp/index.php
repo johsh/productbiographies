@@ -700,7 +700,7 @@
           .attr("d", path)
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
-          .style("fill", "#666");
+          .style("fill", "#b7b7b7");
           //.style("fill", function(d, i) { return d.properties.color; });
 
       //tooltips

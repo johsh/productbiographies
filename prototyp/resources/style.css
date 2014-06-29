@@ -1,11 +1,13 @@
 .link.import {
-  stroke: red;
+  stroke: #ff6600;
+  opacity: 0.8;
 }
 .link.export {
-  stroke: green;
+  stroke: #007b80;
+  opacity: 0.8;
 }
 .link:hover {
-  stroke: yellow;
+  stroke: #dbe213;
 }
 
 .country:hover{

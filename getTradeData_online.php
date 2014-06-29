@@ -1,5 +1,6 @@
 <?php
 //LOCAL
+/*
 if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	    echo 'Keine Verbindung zu mysql';
 	    exit;
@@ -9,6 +10,19 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	    echo 'Konnte Schema nicht selektieren';
 	    exit;
 	}
+*/
+
+//ONLINE
+if (!$link = mysql_connect("martinvonlupin.de.mysql", "martinvonlupin_", "Jvaem4V8")) {
+	    echo 'Keine Verbindung zu mysql';
+	    exit;
+	}
+
+	if (!mysql_select_db("martinvonlupin_", $link)) {
+	    echo 'Konnte Schema nicht selektieren';
+	    exit;
+	}
+
 
 /*
 	## INPUT DATA ##
