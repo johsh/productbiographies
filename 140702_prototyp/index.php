@@ -50,10 +50,30 @@
     <h1>ROADTRIP</h1>
     <h2>Trading Farm Animals Around The World </h2>
     <p>src: FAOSTAT</p>
+    <hr/>
+    <div class="portrait_container">
+      <!--
+      ### bar charts and values ##
+      -->
+      <div id="country"></div>
+      <div id="population" class="portrait_bar"></div>
+      <div id="cattle_import" class="portrait_bar"></div>
+      <div id="chickens_import" class="portrait_bar"></div>
+      <div id="pigs_import" class="portrait_bar"></div>
+      <hr/>
+      <div id="cattle_export" class="portrait_bar"></div>
+      <div id="chickens_export" class="portrait_bar"></div>
+      <div id="pigs_export" class="portrait_bar"></div>
+      <hr/>
+      <div id="cattle_production" class="portrait_bar"></div>
+      <div id="chickens_production" class="portrait_bar"></div>
+      <div id="pigs_production" class="portrait_bar"></div>
+      
 
-    <div class="button" id="cattle" onclick="toggleCattle()">[cattle]</div>
+    </div>
+    <div class="button selected" id="cattle" onclick="toggleCattle()">[cattle]</div>
     <div class="button selected" id="chicken" onclick="toggleChicken()">[chicken]</div>
-    <div class="button" id="pig" onclick="togglePig()">[pig]</div>
+    <div class="button selected" id="pig" onclick="togglePig()">[pig]</div>
 
     <div id="map"></div>
   <script>
@@ -104,6 +124,64 @@
           success: function(data) {
             var json = JSON.parse(data);
             var c = json.country;
+            var v = json.import_value;
+            var p = json.population;
+            
+            var cattle_import = json.cattle_import;
+            var chickens_import = json.chickens_import;
+            var pigs_import = json.pigs_import;
+
+            var cattle_export = json.cattle_export;
+            var chickens_export = json.chickens_export;
+            var pigs_export = json.pigs_export;
+
+            var cattle_production = json.cattle_production;
+            var chickens_production = json.chickens_production;
+            var pigs_production = json.pigs_production;
+            
+            //var maximum_bar_width = 300;
+
+            //$('#portrait_bar').animate({width: v/50000 + "px",}, 500);
+
+            $('#country').html("<b>" + c + " | 2011" + "</b>");
+
+            adjust_bar_value_and_width("#population", "Population", p);
+            adjust_bar_value_and_width("#cattle_import", "Cattle (import)", cattle_import);
+            adjust_bar_value_and_width("#chickens_import", "Chickens (import)", chickens_import);
+            adjust_bar_value_and_width("#pigs_import", "Pigs (import)", pigs_import);
+
+            adjust_bar_value_and_width("#cattle_export", "Cattle (export)", cattle_export);
+            adjust_bar_value_and_width("#chickens_export", "Chickens (export)", chickens_export);
+            adjust_bar_value_and_width("#pigs_export", "Pigs (export)", pigs_export);
+
+            adjust_bar_value_and_width("#cattle_production", "Cattle produced", cattle_production);
+            adjust_bar_value_and_width("#chickens_production", "Chickens produced", chickens_production);
+            adjust_bar_value_and_width("#pigs_production", "Pigs produced", pigs_production);
+/*
+            $('#population')
+            .append("Population " + p)
+            .animate({width: p/900000 + "px"},500);
+
+*/
+
+
+
+/*
+            $('#portrait_text').append("<hr/> <br/> <b>" + "Total Import" + "</b>");
+            $('#portrait_text').append("<br/>" + cattle_import + " cattle");
+            $('#portrait_text').append("<br/>" + chickens_import + " chicken");
+            $('#portrait_text').append("<br/>" + pigs_import + " pig");
+
+            $('#portrait_text').append("<hr/> <br/> <b>" + "Total Export" + "</b>");
+            $('#portrait_text').append("<br/>" + cattle_export + " cattle");
+            $('#portrait_text').append("<br/>" + chickens_export + " chickens");
+            $('#portrait_text').append("<br/>" + pigs_export + " pigs");
+
+            $('#portrait_text').append("<br/>" + "<div>" + " test test test test test test test test " + "</div>");
+
+*/
+
+
           }             
         });  
         
@@ -318,9 +396,9 @@
     var selectedCountry = "Germany";
     // TBC var selectedYear = 2011;
     
-    var showCattle = false;
+    var showCattle = true;
     var showChicken = true;
-    var showPig = false;
+    var showPig = true;
 
     function filterData(){
       return data.filter(function(d){

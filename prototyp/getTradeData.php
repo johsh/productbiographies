@@ -22,6 +22,8 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	= $cattle_production = $chickens_production = $pigs_production
 	= 0;
 
+	$all_travel_data = array();
+
 
 	/*
 	$showCattle = $_GET['showCattle'];
@@ -118,8 +120,82 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	while ($row = mysql_fetch_assoc($result_population)) {
 
 		$this_population = $row['Value'] * 1000; 
+
+		/*!! TEST IF CENTROIDS WORKS !!*/
+		getCentroid("Germany");
 		
 	}
+
+/*	
+	REQUEST: TRADE-MATRIX
+	------------------
+*/
+	$sql_matrix = "SELECT ReporterCountry, PartnerCountry, Element, Value FROM produktbiographien_chickenmatrix WHERE ReporterCountry = '$set_country'";
+	
+	$result_matrix = mysql_query($sql_matrix, $link);
+
+		if (!$result_matrix) {
+		    echo "DB Fehler, konnte die Datenbank nicht abfragen\n";
+		    echo 'MySQL Error: ' . mysql_error();
+		    exit;
+		}
+	
+	$this_lat = $this_lon = 0; //must be set outside while-loop
+		
+	while ($row = mysql_fetch_assoc($result_matrix)) {
+
+		$this_partner = $row['PartnerCountry']; 
+		$this_value = adjust_value($row['Element'], $row['Value'], 2);
+		$partner_lat = $partner_lon = 0;
+		
+	/*
+		## GET CENTROIDS ##
+		## INSIDE MATRIX REQUEST ##
+	*/
+		$sql_centroids = "SELECT LAT, LON, SHORT_NAME, NAME_IN_FAO_DATA FROM produktbiographien_centroids WHERE SHORT_NAME = '$this_partner' OR NAME_IN_FAO_DATA = '$this_partner' OR SHORT_NAME = '$set_country'";
+		$result_centroids = mysql_query($sql_centroids, $link);
+		if (!$result_centroids) {
+		    echo "DB Fehler, konnte die Datenbank nicht abfragen\n";
+		    echo 'MySQL Error: ' . mysql_error();
+		    exit;
+		}
+		while ($row2 = mysql_fetch_assoc($result_centroids)) {
+			
+			if($row2['SHORT_NAME'] == $set_country && $this_lat == 0 && $this_lon == 0){
+				$this_lat = $row2['LAT'];
+				$this_lon = $row2['LON'];
+			}else if($row2['SHORT_NAME'] != $set_country){
+				$partner_lat = $row2['LAT'];
+				$partner_lon = $row2['LON'];
+			}
+		}
+		$dist = distance($this_lat, $this_lon, $partner_lat, $partner_lon);
+		$travel = $dist * $this_value;
+		//echo " >>> distance = " . $dist . "km - value " . $this_value . "<br/>"	;
+
+		$this_travel_data = array(
+			"reporter" => $this_partner,
+			"dist" => $dist,
+			"value" => $this_value,
+			"travel" => $travel
+		);
+
+		$all_travel_data[] = $this_travel_data;
+	}
+
+/*
+	REQUEST: CENTROIDS
+	------------------
+*/
+/*
+	$sql_centroids = "SELECT LAT, LON, SHORT_NAME, NAME_IN_FAO_DATA FROM produktbiographien_centroids WHERE SHORT_NAME = 'xx' OR NAME_IN_FAO_DATA = 'yy'";
+	$result_centroids = mysql_query($sql_centroids, $link);
+	if (!$result_centroids) {
+	    echo "DB Fehler, konnte die Datenbank nicht abfragen\n";
+	    echo 'MySQL Error: ' . mysql_error();
+	    exit;
+	}
+*/
 
 /*	
 	REQUEST: PRODUCTION
@@ -135,6 +211,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		    exit;
 		}
 
+
 	while ($row = mysql_fetch_assoc($result_production)) {
 
 		$production_element = $row['Element']; 
@@ -149,7 +226,14 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		}	
 		if($production_item == "Pigs"){
 			$pigs_production = adjust_value($production_element, $production_value, 1);
-		}		
+		}
+	}
+
+
+	function getCentroid($c){
+		
+		//checkRequestForError($result_centroids);
+
 	}
 
 
@@ -198,6 +282,29 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
         return $d * 6371;
 	}
 
+	function checkRequestForError($this_result){
+		if (!$this_result) {
+		    echo "DB Fehler, konnte die Datenbank nicht abfragen\n";
+		    echo 'MySQL Error: ' . mysql_error();
+		    exit;
+		}
+	}
+
+	$total_reporters = $total_distance = $total_value = 0;
+	foreach ($all_travel_data as $key => $value) {
+ 		//echo "**".$value["reporter"] . "**: " . round($value["dist"]) . "km *(dist)*; " . round($value["value"]). " chickens *(trade)* <br/>";
+		$total_reporters++;
+		$total_distance += $value["dist"];
+		$total_value += $value["value"];
+	};
+
+	$average_dist = $total_distance/$total_reporters;
+
+	//echo "average_dist: " . round($average_dist) . ", total_value: " . $total_value;
+
+
+	//echo "reporters: " . $total_reporters . "total_distance" . $total_distance;
+
 	$total_import = $cattle_import + $chickens_import + $pigs_import;
 	$a = array(
 	"import_value" => $total_import,
@@ -213,7 +320,9 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	"pigs_export" => $pigs_export,
 	"cattle_production" => $cattle_production,
 	"chickens_production" => $chickens_production,
-	"pigs_production" => $pigs_production
+	"pigs_production" => $pigs_production,
+	"average_dist" => $average_dist
+
 		);
 
 	echo json_encode($a);	

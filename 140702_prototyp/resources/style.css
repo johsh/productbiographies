@@ -1,0 +1,55 @@
+.link.import {
+  stroke: #ff6600;
+  opacity: 0.8;
+}
+.link.export {
+  stroke: #007b80;
+  opacity: 0.8;
+}
+.link:hover {
+  stroke: #dbe213;
+}
+
+.country:hover{
+  stroke: #fff;
+  stroke-width: .7px;
+}
+#container {
+  margin:10px 10%;
+  padding:20px;
+  border:2px solid #d0d0d0;
+  border-radius: 5px;
+  height:100%;
+}
+.hidden { 
+  display: none; 
+}
+
+div {
+  margin: 2px;
+}
+div.tooltip {
+  color: #222; 
+  background: #fff; 
+  padding: .5em; 
+  text-shadow: #f5f5f5 0 1px 0;
+  border-radius: 2px; 
+  box-shadow: 0px 0px 2px 0px #a6a6a6; 
+  opacity: 0.9; 
+  position: absolute;
+}
+
+.button{
+  float:left;
+}
+.button:hover{
+  background-color: grey;
+}
+.button.selected{
+ background-color: lightgrey; 
+}
+
+.link{
+  stroke-cap: round;
+}
+

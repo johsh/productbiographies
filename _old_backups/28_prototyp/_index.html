@@ -1,20 +1,14 @@
-<?php
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Roadtrip</title>
+    <title>PRODUKTBIOGRAFIEN</title>
 
     <link rel="stylesheet" href="resources/style.css" />
     <link rel="stylesheet" href="resources/countries.css" />
 
     <script src="resources/d3.min.js"></script>
     <script src="resources/topojson.v1.min.js"></script>
-    <script type="text/javascript" src="resources/jquery-1.10.2.min.js"></script>
-
 
   </head>
 
@@ -26,34 +20,16 @@
       font-weight: 200;
       color: #333;
     }
-    h1, h2, h3, h4, h5, h6, p{
-      font-weight: 200;
-      margin: 0px;
-      padding: 3px;
-    }
-    .portrait_container{
-      width: 100%;
-      min-height: 50px;
-      border: dotted thin #333;
-    }
-    
-    .portrait_bar{
-      width:100px; /*changes interactively*/
-      height:15px;
-      background-color:#C6FFCE;
-      white-space: nowrap;
-      }
   </style>
 
   <body>
 
-    <h1>ROADTRIP</h1>
-    <h2>Trading Farm Animals Around The World </h2>
-    <p>src: FAOSTAT</p>
+    <h1>PRODUKT BIOGRAFIEN</h1>
+    <p>Handelsrouten, src: FAOSTAT</p>
 
-    <div class="button" id="cattle" onclick="toggleCattle()">[cattle]</div>
+    <div class="button selected" id="cattle" onclick="toggleCattle()">[cattle]</div>
     <div class="button selected" id="chicken" onclick="toggleChicken()">[chicken]</div>
-    <div class="button" id="pig" onclick="togglePig()">[pig]</div>
+    <div class="button selected" id="pig" onclick="togglePig()">[pig]</div>
 
     <div id="map"></div>
   <script>
@@ -85,36 +61,6 @@
 
     loadWorld();
     loadData();
-    getDataFromDatabase("Germany");
-
-
-     function getDataFromDatabase(c){
-       
-        $.ajax({
-          type: 'GET',
-          url: 'getTradeData.php',
-          data: {
-            country : c,
-            showCattle : showCattle,
-            showChickens : showChicken,
-            showPigs : showPig            
-          },
-          //gender : set_gender,
-
-          success: function(data) {
-            var json = JSON.parse(data);
-            var c = json.country;
-          }             
-        });  
-        
-    }
-
-            function adjust_bar_value_and_width(this_id, text, value){
-              $(this_id)
-                .html(text + " " + value)
-                .animate({width: value/700000 + "px"},500);
-            }
-            
 
 
     /*----------------------------
@@ -317,10 +263,9 @@
     */
     var selectedCountry = "Germany";
     // TBC var selectedYear = 2011;
-    
-    var showCattle = false;
+    var showCattle = true;
     var showChicken = true;
-    var showPig = false;
+    var showPig = true;
 
     function filterData(){
       return data.filter(function(d){
@@ -367,7 +312,6 @@
     */
     function clickCountry(country){
       selectedCountry = country.properties.name;
-      getDataFromDatabase(selectedCountry);
       updateBundledEdges();
     }
 
@@ -622,7 +566,6 @@
           .attr("d", path)
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
-          .style("fill", "#b7b7b7");
           //.style("fill", function(d, i) { return d.properties.color; });
 
       //tooltips

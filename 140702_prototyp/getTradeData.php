@@ -1,6 +1,5 @@
 <?php
 //LOCAL
-/*
 if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	    echo 'Keine Verbindung zu mysql';
 	    exit;
@@ -10,19 +9,6 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	    echo 'Konnte Schema nicht selektieren';
 	    exit;
 	}
-*/
-
-//ONLINE
-if (!$link = mysql_connect("martinvonlupin.de.mysql", "martinvonlupin_", "Jvaem4V8")) {
-	    echo 'Keine Verbindung zu mysql';
-	    exit;
-	}
-
-	if (!mysql_select_db("martinvonlupin_", $link)) {
-	    echo 'Konnte Schema nicht selektieren';
-	    exit;
-	}
-
 
 /*
 	## INPUT DATA ##
@@ -35,6 +21,7 @@ if (!$link = mysql_connect("martinvonlupin.de.mysql", "martinvonlupin_", "Jvaem4
 	= $cattle_export = $chickens_export = $pigs_export 
 	= $cattle_production = $chickens_production = $pigs_production
 	= 0;
+
 
 	/*
 	$showCattle = $_GET['showCattle'];
@@ -190,6 +177,25 @@ if (!$link = mysql_connect("martinvonlupin.de.mysql", "martinvonlupin_", "Jvaem4
 		
 		return ($element_trade_mode == $requested_trade_mode);
 
+	}
+
+	function distance($latA, $lonA, $latB, $lonB)
+	{
+		//TAKEN FROM http://derickrethans.nl/spatial-indexes-calculating-distance.html
+        // convert from degrees to radians
+        $latA = deg2rad($latA); $lonA = deg2rad($lonA);
+        $latB = deg2rad($latB); $lonB = deg2rad($lonB);
+
+        // calculate absolute difference for latitude and longitude
+        $dLat = ($latA - $latB);
+        $dLon = ($lonA - $lonB);
+
+        // do trigonometry magic
+        $d =
+                sin($dLat/2) * sin($dLat/2) +
+                cos($latA) * cos($latB) * sin($dLon/2) *sin($dLon/2);
+        $d = 2 * asin(sqrt($d));
+        return $d * 6371;
 	}
 
 	$total_import = $cattle_import + $chickens_import + $pigs_import;
