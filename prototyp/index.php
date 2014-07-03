@@ -30,6 +30,7 @@
       font-weight: 200;
       margin: 0px;
       padding: 3px;
+      color: #666;
     }
     .portrait_container{
       width: 100%;
@@ -46,17 +47,63 @@
   </style>
 
   <body>
+    
 
-    <h1>ROADTRIP</h1>
-    <h2>Trading Farm Animals Around The World </h2>
-    <p>src: FAOSTAT</p>
+    <div id="wrapper">
+    <p class="center">CHICKEN ROADTRIP</p>
+    <div id="domain_selection" class="center">
+        <a href="#" id="select_production">Production</a>
+        <a href="#" id="select_trade">Trade</a>
+        <a href="#" id="select_consumption">Consumption</a>    
+    </div>
+    <br/>
+    <div id="portrait" class="center">
+      <p id="portrait_country">THIS COUNTRY</p>
+        <p id="portrait_text"></p>
+        <p id="portrait_data_distance" class="portrait_big">...</p>  
+    </div>
 
+
+<!--
     <div class="button" id="cattle" onclick="toggleCattle()">[cattle]</div>
     <div class="button selected" id="chicken" onclick="toggleChicken()">[chicken]</div>
     <div class="button" id="pig" onclick="togglePig()">[pig]</div>
-
+-->
     <div id="map"></div>
+    <p class="center">src: FAOSTAT</p>
+  </div>
   <script>
+
+  /*
+    ## GLOBAL VARIABLES
+    -------------------
+*/
+    var average_dist = 0;
+    var selected_domain = "production"
+
+/*
+  ## WHEN SELECTING A DOMAIN ##
+  ------------------------
+*/
+  $('#select_production').click(function(){
+        highlight_this_button(this, "production");
+    });
+  $('#select_trade').click(function(){
+        highlight_this_button(this, "trade");
+    });
+  $('#select_consumption').click(function(){
+        highlight_this_button(this, "consumption");
+    });
+
+
+ function highlight_this_button(button, domain){
+    //highlights only this button
+    //sets 'selected_domain'
+    $('#domain_selection a').css("background-color","yellow");
+    $(button).css("background-color","#91FFA2");
+    selected_domain = domain;
+ }
+
 
     //PREPARE CANVAS
     d3.select(window).on("resize", throttle);
@@ -88,6 +135,7 @@
     getDataFromDatabase("Germany");
 
 
+
      function getDataFromDatabase(c){
        
         $.ajax({
@@ -104,10 +152,32 @@
           success: function(data) {
             var json = JSON.parse(data);
             var c = json.country;
+            average_dist = Math.round(json.average_dist);
+
+            $('#portrait_country').html(c.toUpperCase());
+
+            if(selected_domain=="production"){
+              set_portrait("some number", "Some production sentence");
+            }
+            if(selected_domain=="trade"){
+              set_portrait(average_dist  + " km", "A traded chicken has an average journey of");
+            }
+            if(selected_domain=="consumption"){
+              set_portrait("some other number", "Some concumption sentence");
+            }
+
+            
+
+            
           }             
         });  
         
     }
+            function set_portrait(number, text){
+              $('#portrait_text').html(text); 
+              $('#portrait_data_distance').html(number);
+              
+            }
 
             function adjust_bar_value_and_width(this_id, text, value){
               $(this_id)

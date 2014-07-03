@@ -1,3 +1,51 @@
+#wrapper{
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+
+a, a:link, a:visited, a:focus, :hover, a:active{
+  text-decoration: none;
+  color: inherit;
+}
+
+#domain_selection{
+  width: 600px;
+  padding-bottom: 3px;
+  border-bottom: solid thin #ccc;
+}
+#domain_selection a{
+  /*Select production, trade or consuption */ 
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 2px;
+  border-bottom: none;
+  background-color: yellow;
+}
+#domain_selection a:hover{
+  border-bottom: dotted thin #666;
+}
+
+#portrait{
+  font-weight: 200;
+  color: inherit;
+}
+#portrait p#portrait_country{
+  
+}
+#portrait p.portrait_big{
+  /*Calculated data like distance*/
+  font-size: 3em;
+  color: #999;  
+}
+
+.center{
+  width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
 .link.import {
   stroke: #ff6600;
   opacity: 0.8;
