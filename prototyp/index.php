@@ -54,7 +54,8 @@
     <div id="domain_selection" class="center">
         <a href="#" id="select_production">Production</a>
         <a href="#" id="select_trade">Trade</a>
-        <a href="#" id="select_consumption">Consumption</a>    
+        <a href="#" id="select_price">Price</a>    
+        <a href="#" id="select_slaughtered">Slaughtered</a>    
     </div>
     <br/>
     <div id="portrait" class="center">
@@ -87,12 +88,18 @@
 */
   $('#select_production').click(function(){
         highlight_this_button(this, "production");
+        loadProduction();
     });
   $('#select_trade').click(function(){
         highlight_this_button(this, "trade");
     });
-  $('#select_consumption').click(function(){
-        highlight_this_button(this, "consumption");
+  $('#select_price').click(function(){
+        highlight_this_button(this, "price");
+        loadPrice();
+    });
+  $('#select_slaughtered').click(function(){
+        highlight_this_button(this, "slaughtered");
+        loadSlaughtered();
     });
 
 
@@ -212,7 +219,17 @@
           .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
           .call(zoom);
 
+      svg.append("rect")
+        .attr({
+          x:-width,
+          y:-height,
+          width: 2*width,
+          height: 2*height,
+        })
+        .style("fill", "#BCE7FF");
+
       g = svg.append("g");
+
     }
 
     /*
@@ -356,7 +373,6 @@
 
           //WHEN FINISHED LOAD DATA
           loadData();
-          loadPrice();
         });
       });
     }
@@ -375,7 +391,8 @@
       });*/
 
       //
-      d3.csv("data/livingAnimals.csv", function(error, _data){
+      //d3.csv("data/livingAnimals.csv", function(error, _data){
+      d3.csv("data/dataMeat.csv", function(error, _data){ 
         data = _data;//.filter(function(d,i){return i <20;});
         console.log("livingAnimals loaded");
 
@@ -399,11 +416,14 @@
                 && (
                       (showCattle && d.Product == "Cattle") ||
                       (showChicken && d.Product == "Chickens") ||
-                      (showPig && d.Product == "Pigs" )
+                      (showPig && d.Product == "Pigs" ) ||
+                      (d.Product == "Meat, chicken")
                     )
                 ;
       })      
     }
+
+    /* PRICING */
 
     var pricing;
     var maxPrice = -1;
@@ -427,6 +447,68 @@
         //updateBundledEdges("Germany");
       });
     }
+
+    /* PRODUCTION */
+
+    var production;
+    var maxProduction = -1;
+    function loadProduction(){
+
+    d3.csv("data/productionChicken.csv", function(error, _data){
+    //  d3.csv("data/slaughteredChicken.csv", function(error, _data){
+        production = _data;//.filter(function(d,i){return i <20;});
+        
+        production.forEach(function(d){
+          maxProduction = Math.max(maxProduction, parseInt(d.Value));
+        });
+        console.log(maxProduction);
+
+        production.forEach(function(d){
+          d3.selectAll("."+simplifyName(d.Source)).style("fill", "rgb("+parseInt(255*(1-parseInt(d.Value)/maxProduction))+","+
+                                                                        parseInt(255*(1-parseInt(d.Value)/maxProduction))+","+
+                                                                        parseInt(255*(1-parseInt(d.Value)/maxProduction))+")");
+        });
+        
+        //updateBundledEdges("Germany");
+      });
+    }
+
+    /* SLAUGHTERED / POPULATION */
+
+    var slaughteredChicken;
+    var _production = {};
+    var maxSlaughtered = -1;
+    function loadSlaughtered(){
+
+    d3.csv("data/productionChicken.csv", function(error, _data){
+        _data.forEach(function(d){
+          _production[d.Source] = d;
+        });
+
+        d3.csv("data/slaughteredChicken.csv", function(error, _data){
+          slaughteredChicken = _data;
+          
+          slaughteredChicken.forEach(function(d){
+            maxSlaughtered = Math.max(maxSlaughtered, parseInt(d.Value));
+          });        
+
+          
+          slaughteredChicken.forEach(function(d){
+            //console.log(parseInt(population[d.Source].Value));
+
+            var tmp = parseInt(_production[d.Source].Value) / parseInt(d.Value);
+            console.log(d.Source + ": "+ _production[d.Source].Value + " / " + d.Value + " = " + tmp);
+
+            d3.selectAll("."+simplifyName(d.Source)).style("fill", "rgb("+parseInt(255*tmp)+","+
+                                                                          parseInt(255*tmp)+","+
+                                                                          parseInt(255*tmp)+")");
+          });
+          
+          //updateBundledEdges("Germany");
+        });
+      });
+    }
+
 
     /*----------------------------
       ----------------------------
