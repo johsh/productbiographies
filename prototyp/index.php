@@ -452,7 +452,7 @@
         })
         data = _dataCombined;
 
-        updateBundledEdges("Germany");
+        clickCountry({properties: {name: "germany"}});
       });
 
     }
@@ -460,7 +460,7 @@
     /*
         FILTERS DATA BY FOLLOWING CRITERIA
     */
-    var selectedCountry = "Germany";
+    var selectedCountry;
     // TBC var selectedYear = 2011;
     
     var showCattle = false;
@@ -620,6 +620,7 @@
     var standardTension = .9;
     var line = d3.svg.line()
         .interpolate("bundle")
+        //.interpolate("linear")
         .tension(standardTension)
         .x(function(d) { 
           return projection(d.coordinates)[0];
@@ -635,7 +636,7 @@
     var maxExport = -1;
 
     var zoomLineWidth = 1;
-    var maxStrokeWidth = .5;
+    var maxStrokeWidth = .8;
 
     /*
         DRAW BUNDLE EDGES():
@@ -689,7 +690,6 @@
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
                 return zoomLineWidth * maxStrokeWidth*d.data.Value/maxExport;
               else {
-                console.log(parseInt(d.data.Import)+" "+parseInt(d.data.Export)+"/"+Math.min(maxImport,maxExport));
                 return zoomLineWidth * maxStrokeWidth*(parseInt(d.data.Import)+parseInt(d.data.Export))/(maxImport+maxExport);
               }
               
@@ -720,14 +720,20 @@
       selectedCountry;
 
       /* FIRST HIDE ALL COUNTRIES */
-      d3.selectAll(".country").style("opacity", .1);
+      d3.selectAll(".country")
+        .transition()
+        .style("opacity", .5);
 
       data.forEach(function(d){
         if (simplifyName(d.Source) == simplifyName(selectedCountry))
-          d3.selectAll(".country."+simplifyName(d.Target)).style("opacity", 1);
+          d3.selectAll(".country."+simplifyName(d.Target))
+            .transition()
+            .style("opacity", 1);
       })
 
-      d3.selectAll(".country."+simplifyName(selectedCountry)).style("opacity", 1);
+      d3.selectAll(".country."+simplifyName(selectedCountry))
+        .transition()
+        .style("opacity", 1);
     }
 
     /*
@@ -765,10 +771,6 @@
           // IF DIST SOURCE-INBETWEEN < SOURCE-TARGET
           line.tension(standardTension);
 
-          if (getDistance(countries[d.Source].coordinates, countries[d.Source].parent.coordinates) < 
-              getDistance(countries[d.Source].coordinates, countries[d.Target].coordinates))
-            ;//tmp.points.push(countries[d.Source].parent);
-
           // INTRA CONTINENTAL
           if (countries[d.Source].parent.name == countries[d.Target].parent.name)
           {
@@ -796,8 +798,7 @@
             line.tension(standardTension);
             //tmp.points.push(middleAtlanticOcean);
             tmp.points.push(southernOcean);
-            tmp.points.push(indianOcean); 
-            console.log(tmp);                       
+            tmp.points.push(indianOcean);              
             //tmp.points.push(countries[d.Target].parent);
 
 
@@ -861,15 +862,19 @@
 
           
           tmp.points.push(countries[d.Target]);
-
           links.push(tmp);
-
-          
         }
       })
 
+      links.forEach(function(l){
+        l.points=cleanPath(l.points);  
+      });
+      
       return links;
     }
+
+    /* HELPER REMOVING NON-NECESSARY POINTS */
+
 
     /*
         DRAW()
@@ -950,17 +955,34 @@
       ----------------------------
       ----------------------------*/
 
-    /*
-        COMPARES COUNTRY lowercase AND WITHOUT spaces - _ or ,
-    */
-    /*
-      topo.forEach(function(d){
-        console.log("."+simplifyName(d.properties.name)+" {");
-        console.log("\tfill: "+d.properties.color+",");
-        console.log("}");
-        console.log("");
-      });
-    */
+    var cleanFactor = 1.6;//3.8;
+    function cleanPath(points){
+      //return points;
+
+      var _points = [points[0]];
+
+      var p1 = points[0];
+      var p2 = points[1];
+      var p3 = points[2];
+
+      for (var i=1;i<points.length-1;i++){
+        if (squared(getDistance(p1.coordinates, p2.coordinates))
+            +squared(getDistance(p2.coordinates, p3.coordinates))
+                < squared(getDistance(p1.coordinates, p3.coordinates)*cleanFactor))
+        {
+          _points.push(p2);
+          p1=points[i];
+          p2=points[i+1];
+          p3=points[i+2];
+        } else {
+          p2=p3;
+          p3=points[i+1];
+        }
+      }
+      _points.push(points[points.length-1]);
+
+      return _points;
+    }
 
     var replaceThis = [" ", "_", "-", ",", "'", "ç", "å", "é"];
     function simplifyName(a){

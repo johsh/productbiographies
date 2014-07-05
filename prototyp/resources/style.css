@@ -61,6 +61,7 @@ a, a:link, a:visited, a:focus, :hover, a:active{
 .country:hover{
   stroke: #fff;
   stroke-width: .7px;
+  opacity: 1;
 }
 #container {
   margin:10px 10%;
