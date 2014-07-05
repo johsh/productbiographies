@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="resources/countries.css" />
 
     <script src="resources/d3.min.js"></script>
+    <script src="resources/colorbrewer.v1.min.js"></script> 
     <script src="resources/topojson.v1.min.js"></script>
     <script type="text/javascript" src="resources/jquery-1.10.2.min.js"></script>
 
@@ -134,6 +135,10 @@
       var offsetL = document.getElementById('map').offsetLeft+(width/2)+40;
       var offsetT = document.getElementById('map').offsetTop+(height/2)+20;
 
+    /* COLORSCALE */
+    var colorScale = d3.scale.linear()
+              .domain([-1,-.75,-.5,-.25,0,.25,.5,.75,1])
+              .range(colorbrewer.RdYlBu[9]);
 
     setup(width,height);
 
@@ -380,24 +385,75 @@
     /*
       LOADS THE DATA
     */
+    var dataCombined = {};
     function loadData(){
 
       //FINALLY LOAD DATA
 
-      //DUMMY
-      /*d3.csv("data/data.csv", function(error, _data){
-        data = _data.filter(function(d,i){return i <20;});
-        //updateBundledEdges();
-      });*/
-
-      //
-      //d3.csv("data/livingAnimals.csv", function(error, _data){
+      /* MEAT DATA */
+      /*
       d3.csv("data/dataMeat.csv", function(error, _data){ 
         data = _data;//.filter(function(d,i){return i <20;});
         console.log("livingAnimals loaded");
 
         updateBundledEdges("Germany");
       });
+      */
+
+      /* LIVING CHICKEN DATA */
+      d3.csv("data/tradeDataChicken.csv", function(error, _data){ 
+        data = _data;
+        console.log("livingAnimals loaded");
+
+        /* GET IMPORT/EXPORT */
+        data.forEach(function(d){
+          var _source = simplifyName(d.Source);
+          var _target = simplifyName(d.Target);          
+          if (dataCombined[_source] == undefined){
+            dataCombined[_source] = {};
+            dataCombined[_source][_target] = d;
+          } else {
+
+            if (dataCombined[_source][_target] == undefined)
+              dataCombined[_source][_target] = d;
+
+            if (d.Valuetype.indexOf("Import") != -1)
+              dataCombined[_source][_target].Import = d.Value;
+            else if (d.Valuetype.indexOf("Export") != -1)
+              dataCombined[_source][_target].Export = d.Value;
+            else {
+              console.log("sth wrong w/ data");
+              console.log (d);
+            }
+          }
+        });
+
+        _dataCombined = [];
+        Object.keys(dataCombined).forEach(function(k){
+          Object.keys(dataCombined[k]).forEach(function(_k){
+
+            if (dataCombined[k][_k].Import != undefined && 
+                dataCombined[k][_k].Export != undefined){
+
+              dataCombined[k][_k].Valuetype = "ImpMinusExp";
+              dataCombined[k][_k].Value = parseFloat(dataCombined[k][_k].Import)-parseFloat(dataCombined[k][_k].Export);
+
+              dataCombined[k][_k].Value /= Math.max(parseFloat(dataCombined[k][_k].Import),
+                                                    parseFloat(dataCombined[k][_k].Export));
+            } else if (dataCombined[k][_k].Import != undefined){
+              dataCombined[k][_k].Value = 1;
+            } else {
+              dataCombined[k][_k].Value = -1
+            }
+
+            _dataCombined.push(dataCombined[k][_k]);
+          })
+        })
+        data = _dataCombined;
+
+        updateBundledEdges("Germany");
+      });
+
     }
 
     /*
@@ -575,8 +631,9 @@
 
     var maxImport = -1;
     var maxExport = -1;
+
     var zoomLineWidth = 1;
-    var maxStrokeWidth = 10;
+    var maxStrokeWidth = .5;
     /*
         DRAW BUNDLE EDGES():
         DRAWS BUNDLED EDGES FOR ALL DATA
@@ -587,18 +644,6 @@
 
       var _data = filterData();
 
-      //re-calc maxImport/maxExport
-      maxImport = -1;
-      maxExport = -1;
-
-      _data.forEach(function(d){
-        if (d.Valuetype.toLowerCase().indexOf("import") != -1)
-          maxImport = Math.max(d.Value, maxImport);
-        else if (d.Valuetype.toLowerCase().indexOf("export") != -1)
-          maxExport = Math.max(d.Value, maxExport);
-      })
-      console.log(maxImport + " " + maxExport);
-
       links = packageHierarchy(_data);
 
       g.selectAll(".trade")
@@ -606,23 +651,48 @@
         .enter().append("path")
           .attr("class", function(d){
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
-                return "link import";
+                return "link _import";
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
-                return "link export";
+                return "link _export";
               else
-                return "link neitherImportNorExport";
+                return "link _neitherImportNorExport";
           })
           .style({
+            "stroke": function(d){
+              return colorScale(d.data.Value);
+            },
             "stroke-width": function(d){ 
+              //re-calc maxImport/maxExport
+              maxImport = -1;
+              maxExport = -1;
+
+              Object.keys(dataCombined[simplifyName(d.data.Source)]).forEach(function(k){
+                var _d = dataCombined[simplifyName(d.data.Source)][k];
+                if (_d.Valuetype.toLowerCase().indexOf("import") != -1)
+                  maxImport = Math.max(parseFloat(_d.Value), maxImport);
+                else if (_d.Valuetype.toLowerCase().indexOf("export") != -1)
+                  maxExport = Math.max(parseFloat(_d.Value), maxExport);
+                else {
+                  maxImport = Math.max(parseFloat(_d.Import), maxImport);
+                  maxExport = Math.max(parseFloat(_d.Export), maxExport);
+                }
+
+              });
+
+              return maxStrokeWidth;
+
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
-                return zoomLineWidth * Math.max(2, maxStrokeWidth * d.data.Value/maxImport);
+                return zoomLineWidth * maxStrokeWidth * d.data.Value/maxImport;
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
-                return zoomLineWidth * Math.max(2, maxStrokeWidth*d.data.Value/maxExport);
+                return zoomLineWidth * maxStrokeWidth*d.data.Value/maxExport;
+              else {
+                console.log(parseInt(d.data.Import)+" "+parseInt(d.data.Export)+"/"+Math.min(maxImport,maxExport));
+                return zoomLineWidth * maxStrokeWidth*(parseInt(d.data.Import)+parseInt(d.data.Export))/(maxImport+maxExport);
+              }
               
             },
             fill: "none",
           })
-          
           .attr("d", function(d){
             return line(d.points);
           })
@@ -874,6 +944,7 @@
         console.log("");
       });
     */
+
     var replaceThis = [" ", "_", "-", ",", "'", "ç", "å", "é"];
     function simplifyName(a){
       var _a = a.toLowerCase();
