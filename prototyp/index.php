@@ -52,6 +52,12 @@
 
     <div id="wrapper">
     <p class="center">CHICKEN ROADTRIP</p>
+    <div>
+      <div id="item_selection" class="center">
+        <a href="#" id="select_live">Chicken Live</a>
+        <a href="#" id="select_meat">Chicken Meat</a>
+      </div>
+    </div>
     <div id="domain_selection" class="center">
         <a href="#" id="select_production">Production</a>
         <a href="#" id="select_trade">Trade</a>
@@ -81,30 +87,52 @@
     -------------------
 */
     var average_dist = 0;
-    var selected_domain = "production"
+    var selected_domain = "production";
+    var selected_item = "Chickens" // or "Meat, chicken"
+
+/*
+  ## SELECTING AN ITEM ##
+  ------------------------
+*/
+  $('#select_live').click(function(){
+        highlight_this_item(this, "Chickens");
+    });
+  $('#select_meat').click(function(){
+        highlight_this_item(this, "Meat, chicken");
+    });
+
 
 /*
   ## WHEN SELECTING A DOMAIN ##
   ------------------------
 */
   $('#select_production').click(function(){
-        highlight_this_button(this, "production");
+        highlight_this_domain(this, "production");
         loadProduction();
     });
   $('#select_trade').click(function(){
-        highlight_this_button(this, "trade");
+        highlight_this_domain(this, "trade");
     });
   $('#select_price').click(function(){
-        highlight_this_button(this, "price");
+        highlight_this_domain(this, "price");
         loadPrice();
     });
   $('#select_slaughtered').click(function(){
-        highlight_this_button(this, "slaughtered");
+        highlight_this_domain(this, "slaughtered");
         loadSlaughtered();
     });
 
 
- function highlight_this_button(button, domain){
+function highlight_this_item(button, item){
+    //highlights only this button
+    //sets 'selected_domain'
+    $('#item_selection a').css("background-color","yellow");
+    $(button).css("background-color","red");
+    selected_item = item;
+    updateBundledEdges();
+ }
+
+ function highlight_this_domain(button, domain){
     //highlights only this button
     //sets 'selected_domain'
     $('#domain_selection a').css("background-color","yellow");
@@ -143,7 +171,7 @@
     setup(width,height);
 
     loadWorld();
-    loadData();
+    loadData2();
     getDataFromDatabase("Germany");
 
 
@@ -393,7 +421,7 @@
           */
 
           //WHEN FINISHED LOAD DATA
-          loadData();
+          loadData2();
         });
       });
     }
@@ -402,6 +430,66 @@
       LOADS THE DATA
     */
     var dataCombined = {};
+
+        function loadData2(){
+
+      /* LIVING CHICKEN DATA */
+      d3.csv("data/matrixChickenDeadAlive.csv", function(error, _data){ 
+        data = _data;
+        console.log("matrixChickenDeadAlive.csv loaded");
+
+        /* GET IMPORT/EXPORT */
+        data.forEach(function(d){
+          var _source = simplifyName(d.Source);
+          var _target = simplifyName(d.Target);          
+          if (dataCombined[_source] == undefined){
+            dataCombined[_source] = {};
+            dataCombined[_source][_target] = d;
+          } else {
+
+            if (dataCombined[_source][_target] == undefined)
+              dataCombined[_source][_target] = d;
+
+            if (d.Valuetype.indexOf("Import") != -1)
+              dataCombined[_source][_target].Import = d.Value;
+            else if (d.Valuetype.indexOf("Export") != -1)
+              dataCombined[_source][_target].Export = d.Value;
+            else {
+              console.log("sth wrong w/ data");
+              console.log (d);
+            }
+          }
+        });
+
+        _dataCombined = [];
+        Object.keys(dataCombined).forEach(function(k){
+          Object.keys(dataCombined[k]).forEach(function(_k){
+
+            if (dataCombined[k][_k].Import != undefined && 
+                dataCombined[k][_k].Export != undefined){
+
+              dataCombined[k][_k].Valuetype = "ImpMinusExp";
+              dataCombined[k][_k].Value = parseFloat(dataCombined[k][_k].Import)-parseFloat(dataCombined[k][_k].Export);
+
+              dataCombined[k][_k].Value /= Math.max(parseFloat(dataCombined[k][_k].Import),
+                                                    parseFloat(dataCombined[k][_k].Export));
+            } else if (dataCombined[k][_k].Import != undefined){
+              dataCombined[k][_k].Value = 1;
+            } else {
+              dataCombined[k][_k].Value = -1
+            }
+
+            _dataCombined.push(dataCombined[k][_k]);
+          })
+        })
+        data = _dataCombined;
+
+        clickCountry({properties: {name: "germany"}});
+      });
+
+    }
+
+
     function loadData(){
 
       //FINALLY LOAD DATA
@@ -492,6 +580,13 @@
                       (d.Product == "Meat, chicken")
                     )
                 ;
+      })      
+    }
+
+    function filterData2(item){
+      return data.filter(function(d){
+        return (d.Source == selectedCountry)// || d.Target == selectedCountry) 
+                && (d.Product == item);
       })      
     }
 
@@ -661,7 +756,7 @@
     function updateBundledEdges(){
       d3.selectAll(".link").remove();
 
-      var _data = filterData();
+      var _data = filterData2(selected_item);
 
       links = packageHierarchy(_data);
 
