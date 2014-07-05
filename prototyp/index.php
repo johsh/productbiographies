@@ -226,7 +226,7 @@
           width: 2*width,
           height: 2*height,
         })
-        .style("fill", "#BCE7FF");
+        .style("fill", "#EBF8FF");
 
       g = svg.append("g");
 
