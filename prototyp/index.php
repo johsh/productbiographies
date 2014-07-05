@@ -210,6 +210,7 @@
         INITS PROJECTION + SVG ELEMENTS
     */
     function setup(width,height){
+      //projection = d3.geo.orthographic()
       projection = d3.geo.mercator()
         .translate([0, 0])
         .scale(width / 2 / Math.PI);
@@ -600,6 +601,7 @@
       selectedCountry = country.properties.name;
       getDataFromDatabase(selectedCountry);
       updateBundledEdges();
+      updateCountryOpacity();
     }
 
 
@@ -634,6 +636,7 @@
 
     var zoomLineWidth = 1;
     var maxStrokeWidth = .5;
+
     /*
         DRAW BUNDLE EDGES():
         DRAWS BUNDLED EDGES FOR ALL DATA
@@ -711,6 +714,20 @@
           })
 
           .call(zoom);
+    }
+
+    function updateCountryOpacity(){
+      selectedCountry;
+
+      /* FIRST HIDE ALL COUNTRIES */
+      d3.selectAll(".country").style("opacity", .1);
+
+      data.forEach(function(d){
+        if (simplifyName(d.Source) == simplifyName(selectedCountry))
+          d3.selectAll(".country."+simplifyName(d.Target)).style("opacity", 1);
+      })
+
+      d3.selectAll(".country."+simplifyName(selectedCountry)).style("opacity", 1);
     }
 
     /*
