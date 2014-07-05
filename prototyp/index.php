@@ -209,6 +209,14 @@
         SETUP():
         INITS PROJECTION + SVG ELEMENTS
     */
+    var λ = d3.scale.linear()
+      .domain([0, width])
+      .range([-180, 180]);
+
+    var φ = d3.scale.linear()
+      .domain([0, height])
+      .range([90, -90]);
+
     function setup(width,height){
       //projection = d3.geo.orthographic()
       projection = d3.geo.mercator()
@@ -223,7 +231,14 @@
           .attr("height", height)
           .append("g")
           .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-          .call(zoom);
+          .call(zoom)
+          /*.on("drag", function() {
+            var p = d3.mouse(this);
+            projection.rotate([λ(p[0]), φ(height/2)]);
+            svg.selectAll("path").attr("d", path);
+          });*/
+
+          ;
 
       svg.append("rect")
         .attr({
