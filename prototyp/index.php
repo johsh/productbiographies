@@ -432,6 +432,8 @@ function highlight_this_item(button, item){
     var dataCombined = {};
 
         function loadData2(){
+          // LIKE loadData()
+          // JUST CHANGED THE SOURCE
 
       /* LIVING CHICKEN DATA */
       d3.csv("data/matrixChickenDeadAlive.csv", function(error, _data){ 
