@@ -54,8 +54,9 @@
     <p class="center">CHICKEN ROADTRIP</p>
     <div>
       <div id="item_selection" class="center">
-        <a href="#" id="select_live">Chicken Live</a>
-        <a href="#" id="select_meat">Chicken Meat</a>
+        <a href="#" id="select_live">Alive</a>
+        <a href="#" id="select_meat">Dead</a>
+        <a href="#" id="select_canned">Canned</a>
       </div>
     </div>
     <div id="domain_selection" class="center">
@@ -98,7 +99,10 @@
         highlight_this_item(this, "Chickens");
     });
   $('#select_meat').click(function(){
-        highlight_this_item(this, "Meat, chicken");
+        highlight_this_item(this, "Meat, chicken"); 
+    });
+  $('#select_canned').click(function(){
+        highlight_this_item(this, "Meat, chicken, canned");
     });
 
 
