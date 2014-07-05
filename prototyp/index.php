@@ -356,6 +356,7 @@
 
           //WHEN FINISHED LOAD DATA
           loadData();
+          loadPrice();
         });
       });
     }
@@ -404,6 +405,28 @@
       })      
     }
 
+    var pricing;
+    var maxPrice = -1;
+    function loadPrice(){
+
+     d3.csv("data/pricingChicken.csv", function(error, _data){
+     // d3.csv("data/productionChicken.csv", function(error, _data){
+        pricing = _data;//.filter(function(d,i){return i <20;});
+        
+        pricing.forEach(function(d){
+          maxPrice = Math.max(maxPrice, parseInt(d.Value));
+        });
+        console.log(maxPrice);
+
+        pricing.forEach(function(d){
+          d3.selectAll("."+simplifyName(d.Source)).style("fill", "rgb("+parseInt(255*(1-parseInt(d.Value)/maxPrice))+","+
+                                                                        parseInt(255*(1-parseInt(d.Value)/maxPrice))+","+
+                                                                        parseInt(255*(1-parseInt(d.Value)/maxPrice))+")");
+        });
+        
+        //updateBundledEdges("Germany");
+      });
+    }
 
     /*----------------------------
       ----------------------------
