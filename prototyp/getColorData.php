@@ -131,6 +131,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	$average_dist = $total_distance/$total_reporters;
 
 	$total_import = $cattle_import + $chickens_import + $pigs_import;
+	
 	$a = array(
 	"import_value" => $total_import,
 	"item" => $this_item,

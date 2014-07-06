@@ -20,7 +20,11 @@
 
 TO DO:
 - Möglichkeit KEIN Land auszuwählen
+- selectedCountry highlighten (Farbe)
 - Eindeutige Werte (in Zahlen) der Karteneinfärbung entnehmen, Tooltip?
+- Legende für Länderfarben
+- Range für Länderfarben (6 Schritte) (colorbrewer)?
+- Länderfarbe nur auf Partnerländer anwenden, der Rest hat Einheitsfarbe-/Opacity
 
 -->
   </head>
@@ -50,6 +54,9 @@ TO DO:
       height:15px;
       background-color:#C6FFCE;
       white-space: nowrap;
+      }
+      .highlightCountry{
+        background-color: red;
       }
   </style>
 
@@ -83,6 +90,7 @@ TO DO:
     <div>
       <div id="range_type">range type: maximum</div>
     </div>
+    <div style="background-color:#B7877C; width:200px">No data available or value=0</div>
 
 
 <!--
@@ -132,7 +140,8 @@ TO DO:
 */
   $('#select_production').click(function(){
         highlight_this_domain(this, "production");
-        loadProduction();
+        colorCountry("produktbiographien_LivestockPrimeryProduction","Livestock Primary", "Meat indigenous, chicken","Production");
+        //loadProduction();
     });
   $('#select_trade').click(function(){
         highlight_this_domain(this, "trade");
@@ -140,11 +149,13 @@ TO DO:
     });
   $('#select_price').click(function(){
         highlight_this_domain(this, "price");
-        loadPrice();
+        colorCountry("produktbiographien_annualPrices", "Producer Prices - Annual", "Meat live weight, chicken", "Price");
+        //loadPrice();
     });
   $('#select_slaughtered').click(function(){
         highlight_this_domain(this, "slaughtered");
-        loadSlaughtered();
+        colorCountry("produktbiographien_LivestockPrimeryProduction","Livestock Primary", "Meat, chicken","Producing");
+        //loadSlaughtered();
     });
 
   $('#select_importAnimals').click(function(){
@@ -600,7 +611,7 @@ function highlight_this_item(button, item){
     /*
         FILTERS DATA BY FOLLOWING CRITERIA
     */
-    var selectedCountry;
+    var selectedCountry = "germany";
     // TBC var selectedYear = 2011;
     
     var showCattle = false;
@@ -652,7 +663,7 @@ function highlight_this_item(button, item){
       });
     }
 
-    var max = -1;
+    
     function colorCountry(data_table, domain, item, element){
       //TRY TO GET COUNTRY FILL DATA FROM DATA BASE
     
@@ -671,6 +682,8 @@ function highlight_this_item(button, item){
             //var json = JSON.parse(data);
             //var c = json.country;
             var data = _data;
+            var max = -1; //needs to be resetted every time
+            
 
 /*
             $.each(data.data, function(index,data) {        
@@ -680,7 +693,8 @@ function highlight_this_item(button, item){
     
   */          
             var c = 255; //parseInt(255*(1-parseInt(d.Value)))
-
+            //greyColors = new Array("247","217","189","150","99","37");
+            greyColors = new Array("37","99","150","189","217","247");
             /*
             data.forEach(function(d){
               var v = d.value;
@@ -695,35 +709,43 @@ function highlight_this_item(button, item){
 */
 
                data.forEach(function(d){
-                //max = Math.max(max, d.Value);
-                max = 150000*1000; //set one fix value to compare both (im/export) equally
-                console.log("max: " + max + "this: " + d.Value);
-                
-                console.log("c:" + c);
+                max = Math.max(max, d.Value);
+                //max = 150000*1000; //set one fix value to compare both (im/export) equally
               });
 
 
-              d3.selectAll(".country").style("fill","#aaa"); //"deselect" all countries
+              d3.selectAll(".country").style("fill","#e0e0e0"); //"deselect" all countries
               data.forEach(function(d){
 
                 //c = Math.round((d.Value * 255)/max);
                 if(range_by_maximum){
-                  c = Math.round((d.Value * 255)/max);
+                  //c = Math.round((d.Value * 255)/max);
+                  c = proportion(d.Value,max,0,183);
                 }else{
-                  c = Math.round((Math.log(d.Value) * 255)/Math.log(max));
+                  //c = Math.round((Math.log(d.Value) * 255)/Math.log(max));
+                  c = proportion(Math.log(d.Value),Math.log(max),0,183);
                 }     
-                c = -c + 255;
-                //c = (255*(1-d.Value/max))
+                
+                
+                //RANGE DOESN'T WORK YET
+                /*
+                var i = Math.round((c*6)/255);
+                c = greyColors[i];
+                */
+                
                 d3.selectAll("."+simplifyName(d.Country)).style("fill", "rgb("+c+","+
-                                                                              c+","+
-                                                                              c+")");
+                                                                        c+","+
+                                                                        c+")");
               });
+
             
-          
           }           
         }); 
           }
     
+    function proportion(value,max,minrange,maxrange) {
+      return Math.round(((max-value)/(max))*(maxrange-minrange))+minrange;
+    }
 
     /* PRODUCTION */
 
@@ -818,9 +840,14 @@ function highlight_this_item(button, item){
         IF A COUNTRY IS CLICKED ...
     */
     function clickCountry(country){
-      selectedCountry = country.properties.name;
+      if(selectedCountry==country.properties.name){
+        //DESELECT COUNTRY WHEN DOUBLE CLICK
+        selectedCountry = "none";
+      }else{
+        selectedCountry = country.properties.name;
+      }
+
       //Highlight selected Country?
-      //d3.select("."+selectedCountry).style("fill","red"); //doesn't work
       getDataFromDatabase(selectedCountry);
       updateBundledEdges();
       updateCountryOpacity();
@@ -939,12 +966,17 @@ function highlight_this_item(button, item){
     }
 
     function updateCountryOpacity(){
-      selectedCountry;
+      var o = 0.2;
+      if(selectedCountry!="none"){
+        o = 0.2;
+      }else{
+        o=1;
+      }
 
       /* FIRST HIDE ALL COUNTRIES */
       d3.selectAll(".country")
         .transition()
-        .style("opacity", .1);
+        .style("opacity", o); //xxx
 
       data.forEach(function(d){
         if (simplifyName(d.Source) == simplifyName(selectedCountry) && d.Product == selected_item
@@ -957,6 +989,8 @@ function highlight_this_item(button, item){
       d3.selectAll(".country."+simplifyName(selectedCountry))
         .transition()
         .style("opacity", 1);
+
+
     }
 
     /*
