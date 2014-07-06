@@ -61,7 +61,7 @@
     </div>
     <div id="domain_selection" class="center">
         <a href="#" id="select_production">Production</a>
-        <a href="#" id="select_trade">Trade</a>
+        <a href="#" id="select_trade">TESTING</a>
         <a href="#" id="select_price">Price</a>    
         <a href="#" id="select_slaughtered">Slaughtered</a>    
     </div>
@@ -135,6 +135,7 @@ function highlight_this_item(button, item){
     $(button).css("background-color","red");
     selected_item = item;
     updateBundledEdges();
+    updateCountryOpacity();
  }
 
  function highlight_this_domain(button, domain){
