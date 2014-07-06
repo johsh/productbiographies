@@ -116,6 +116,7 @@
     });
   $('#select_trade').click(function(){
         highlight_this_domain(this, "trade");
+        colorCountry("dummy");
     });
   $('#select_price').click(function(){
         highlight_this_domain(this, "price");
@@ -437,7 +438,7 @@ function highlight_this_item(button, item){
 
         function loadData2(){
           // LIKE loadData()
-          // JUST CHANGED THE SOURCE
+          // JUST CHANGED THE SOURCE tradeDataChicken
 
       /* LIVING CHICKEN DATA */
       d3.csv("data/matrixChickenDeadAlive.csv", function(error, _data){ 
@@ -605,7 +606,7 @@ function highlight_this_item(button, item){
      d3.csv("data/pricingChicken.csv", function(error, _data){
      // d3.csv("data/productionChicken.csv", function(error, _data){
         pricing = _data;//.filter(function(d,i){return i <20;});
-        
+        console.log(pricing);
         pricing.forEach(function(d){
           maxPrice = Math.max(maxPrice, parseInt(d.Value));
         });
@@ -620,6 +621,60 @@ function highlight_this_item(button, item){
         //updateBundledEdges("Germany");
       });
     }
+
+    var max = -1;
+    function colorCountry(domain){
+      //TRY TO GET COUNTRY FILL DATA FROM DATA BASE
+          $.ajax({
+          type: 'GET',
+          url: 'getColorData.php',
+          dataType: 'json',
+          data: {
+            domain : domain
+          },
+
+          success: function(_data) {
+            //var json = JSON.parse(data);
+            //var c = json.country;
+            var data = _data;
+
+/*
+            $.each(data.data, function(index,data) {        
+                d3.selectAll((data.country)).style("fill", "rgb(255,255,0)");
+                console.log(data.country);
+            });
+    
+  */          
+            var c = 255; //parseInt(255*(1-parseInt(d.Value)))
+
+            /*
+            data.forEach(function(d){
+              var v = d.value;
+              if(v>10000){
+                c=200;
+              }else{
+                c=100;
+              };
+              d3.selectAll("."+simplifyName(d.country)).style("fill", "rgb(255,255,"+c+")");
+            
+            });
+*/
+
+               data.forEach(function(d){
+                max = Math.max(max, parseInt(d.value));
+              });
+              
+              data.forEach(function(d){
+                d3.selectAll("."+simplifyName(d.country)).style("fill", "rgb("+parseInt(255*(1-parseInt(d.value)/maxProduction))+","+
+                                                                              parseInt(255*(1-parseInt(d.value)/maxProduction))+","+
+                                                                              parseInt(255*(1-parseInt(d.value)/maxProduction))+")");
+              });
+            
+          
+          }           
+        }); 
+          }
+    
 
     /* PRODUCTION */
 
