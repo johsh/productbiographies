@@ -771,6 +771,8 @@ function highlight_this_item(button, item){
     */
     function clickCountry(country){
       selectedCountry = country.properties.name;
+      //Highlight selected Country?
+      //d3.select("."+selectedCountry).style("fill","red"); //doesn't work
       getDataFromDatabase(selectedCountry);
       updateBundledEdges();
       updateCountryOpacity();
