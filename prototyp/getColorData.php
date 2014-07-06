@@ -16,6 +16,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 */
 	
 	$set_table = addslashes($_GET['data_table']);
+	$set_domain = addslashes($_GET['domain']);
 	$set_item = addslashes($_GET['item']);
 	$set_element = addslashes($_GET['element']);
 	$set_year = 2011;
@@ -33,7 +34,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	------------------
 */
 	$color_array = array();
-	$sql_color = "SELECT Country, Value, Element, Item FROM $set_table WHERE Item = '$set_item' AND Element = '$set_element' AND Year = '$set_year'";
+	$sql_color = "SELECT Country, Value, Element, Item FROM $set_table WHERE Domain ='$set_domain' AND Item = '$set_item' AND Year = '$set_year'";
 	
 	$result_color = mysql_query($sql_color, $link);
 
@@ -45,18 +46,23 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 
 
 	while ($row = mysql_fetch_assoc($result_color)) {
+		$element = $row['Element'];
+		$element_array = explode(" ", $element);
 
-		$country = $row['Country'];
-		$value = $row['Value']; 
+		if(in_array($set_element, $element_array)){
+			//is "Export" in "Export Quantity (1000 Head)"?
+			$country = $row['Country'];
+			$value = $row['Value']; 
+				if(in_array("(1000", $element_array)){
+					$value = $value * 1000;	
+				}
+			$c = array(
+				"Country" => $country,
+				"Value" => $value
+			);
 
-		$c = array(
-			"Country" => $country,
-			"Value" => $value
-		);
-
-		$color_array[] = $c;
-
-		
+			$color_array[] = $c;
+			}
 	}
 
 

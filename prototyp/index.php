@@ -20,6 +20,7 @@
 
 TO DO:
 - Möglichkeit KEIN Land auszuwählen
+- Eindeutige Werte (in Zahlen) der Karteneinfärbung entnehmen, Tooltip?
 
 -->
   </head>
@@ -79,6 +80,10 @@ TO DO:
         <p id="portrait_data_distance" class="portrait_big">...</p>  
     </div>
 
+    <div>
+      <div id="range_type">range type: maximum</div>
+    </div>
+
 
 <!--
     <div class="button" id="cattle" onclick="toggleCattle()">[cattle]</div>
@@ -89,7 +94,15 @@ TO DO:
     <p class="center">src: FAOSTAT</p>
   </div>
   <script>
-
+  var range_by_maximum = true;
+  $('#range_type').click(function(){
+    range_by_maximum = !range_by_maximum;
+    if(range_by_maximum){
+      $(this).html("range type: maximum");
+    }else{
+      $(this).html("range type: log(maximum)");
+    }
+  });
   /*
     ## GLOBAL VARIABLES
     -------------------
@@ -136,11 +149,11 @@ TO DO:
 
   $('#select_importAnimals').click(function(){
         highlight_this_domain(this, "none");
-        colorCountry("produktbiographien_trade","Chickens","Import Quantity (1000 Head)");
+        colorCountry("produktbiographien_trade","Live animals","Chickens","Import");
     });
   $('#select_exportAnimals').click(function(){
         highlight_this_domain(this, "none");
-        colorCountry("produktbiographien_trade","Chickens","Export Quantity (1000 Head)");
+        colorCountry("produktbiographien_trade","Live animals", "Chickens","Export");
     });
 
 
@@ -640,7 +653,7 @@ function highlight_this_item(button, item){
     }
 
     var max = -1;
-    function colorCountry(data_table, item, element){
+    function colorCountry(data_table, domain, item, element){
       //TRY TO GET COUNTRY FILL DATA FROM DATA BASE
     
           $.ajax({
@@ -649,6 +662,7 @@ function highlight_this_item(button, item){
           dataType: 'json',
           data: {
               data_table : data_table,
+              domain : domain,
               item : item,
               element : element
           },
@@ -679,10 +693,10 @@ function highlight_this_item(button, item){
             
             });
 */
-              
+
                data.forEach(function(d){
                 //max = Math.max(max, d.Value);
-                max = 100000;
+                max = 150000*1000; //set one fix value to compare both (im/export) equally
                 console.log("max: " + max + "this: " + d.Value);
                 
                 console.log("c:" + c);
@@ -692,7 +706,12 @@ function highlight_this_item(button, item){
               d3.selectAll(".country").style("fill","#aaa"); //"deselect" all countries
               data.forEach(function(d){
 
-                c = Math.round((d.Value * 255)/max);
+                //c = Math.round((d.Value * 255)/max);
+                if(range_by_maximum){
+                  c = Math.round((d.Value * 255)/max);
+                }else{
+                  c = Math.round((Math.log(d.Value) * 255)/Math.log(max));
+                }     
                 c = -c + 255;
                 //c = (255*(1-d.Value/max))
                 d3.selectAll("."+simplifyName(d.Country)).style("fill", "rgb("+c+","+
@@ -925,7 +944,7 @@ function highlight_this_item(button, item){
       /* FIRST HIDE ALL COUNTRIES */
       d3.selectAll(".country")
         .transition()
-        .style("opacity", 0.1); 
+        .style("opacity", .1);
 
       data.forEach(function(d){
         if (simplifyName(d.Source) == simplifyName(selectedCountry) && d.Product == selected_item
