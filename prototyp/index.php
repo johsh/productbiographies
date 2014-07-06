@@ -88,9 +88,11 @@ TO DO:
     </div>
 
     <div>
-      <div id="range_type">range type: maximum</div>
+      <div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>
     </div>
-    <div style="background-color:#B7877C; width:200px">No data available or value=0</div>
+    
+    <img src="resources/legende.png">
+    
 
 
 <!--
@@ -99,6 +101,7 @@ TO DO:
     <div class="button" id="pig" onclick="togglePig()">[pig]</div>
 -->
     <div id="map"></div>
+
     <p class="center">src: FAOSTAT</p>
   </div>
   <script>
