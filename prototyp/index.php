@@ -896,7 +896,8 @@ function highlight_this_item(button, item){
         .style("opacity", .5);
 
       data.forEach(function(d){
-        if (simplifyName(d.Source) == simplifyName(selectedCountry))
+        if (simplifyName(d.Source) == simplifyName(selectedCountry) && d.Product == selected_item
+          )
           d3.selectAll(".country."+simplifyName(d.Target))
             .transition()
             .style("opacity", 1);
