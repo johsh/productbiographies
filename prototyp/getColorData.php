@@ -14,7 +14,10 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	## INPUT DATA ##
 	## FROM INDEX.PHP ##
 */
-	$set_domain = addslashes($_GET['domain']);
+	
+	$set_table = addslashes($_GET['data_table']);
+	$set_item = addslashes($_GET['item']);
+	$set_element = addslashes($_GET['element']);
 	$set_year = 2011;
 	
 	
@@ -30,7 +33,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	------------------
 */
 	$color_array = array();
-	$sql_color = "SELECT Country, Value, Element, Item FROM produktbiographien_production WHERE Domain = 'Live Animals' AND Year = '$set_year'";
+	$sql_color = "SELECT Country, Value, Element, Item FROM $set_table WHERE Item = '$set_item' AND Element = '$set_element' AND Year = '$set_year'";
 	
 	$result_color = mysql_query($sql_color, $link);
 
@@ -47,8 +50,8 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		$value = $row['Value']; 
 
 		$c = array(
-			"country" => $country,
-			"value" => $value
+			"Country" => $country,
+			"Value" => $value
 		);
 
 		$color_array[] = $c;

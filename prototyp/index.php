@@ -16,7 +16,12 @@
     <script src="resources/topojson.v1.min.js"></script>
     <script type="text/javascript" src="resources/jquery-1.10.2.min.js"></script>
 
+<!--
 
+TO DO:
+- Möglichkeit KEIN Land auszuwählen
+
+-->
   </head>
 
   <style>
@@ -63,7 +68,9 @@
         <a href="#" id="select_production">Production</a>
         <a href="#" id="select_trade">TESTING</a>
         <a href="#" id="select_price">Price</a>    
-        <a href="#" id="select_slaughtered">Slaughtered</a>    
+        <a href="#" id="select_slaughtered">Slaughtered</a>
+        <a href="#" id="select_importAnimals">imported-Animals</a> 
+        <a href="#" id="select_exportAnimals">export-Animals</a>    
     </div>
     <br/>
     <div id="portrait" class="center">
@@ -125,6 +132,15 @@
   $('#select_slaughtered').click(function(){
         highlight_this_domain(this, "slaughtered");
         loadSlaughtered();
+    });
+
+  $('#select_importAnimals').click(function(){
+        highlight_this_domain(this, "none");
+        colorCountry("produktbiographien_trade","Chickens","Import Quantity (1000 Head)");
+    });
+  $('#select_exportAnimals').click(function(){
+        highlight_this_domain(this, "none");
+        colorCountry("produktbiographien_trade","Chickens","Export Quantity (1000 Head)");
     });
 
 
@@ -624,14 +640,17 @@ function highlight_this_item(button, item){
     }
 
     var max = -1;
-    function colorCountry(domain){
+    function colorCountry(data_table, item, element){
       //TRY TO GET COUNTRY FILL DATA FROM DATA BASE
+    
           $.ajax({
           type: 'GET',
           url: 'getColorData.php',
           dataType: 'json',
           data: {
-            domain : domain
+              data_table : data_table,
+              item : item,
+              element : element
           },
 
           success: function(_data) {
@@ -660,15 +679,25 @@ function highlight_this_item(button, item){
             
             });
 */
-
-               data.forEach(function(d){
-                max = Math.max(max, parseInt(d.value));
-              });
               
+               data.forEach(function(d){
+                //max = Math.max(max, d.Value);
+                max = 100000;
+                console.log("max: " + max + "this: " + d.Value);
+                
+                console.log("c:" + c);
+              });
+
+
+              d3.selectAll(".country").style("fill","#aaa"); //"deselect" all countries
               data.forEach(function(d){
-                d3.selectAll("."+simplifyName(d.country)).style("fill", "rgb("+parseInt(255*(1-parseInt(d.value)/maxProduction))+","+
-                                                                              parseInt(255*(1-parseInt(d.value)/maxProduction))+","+
-                                                                              parseInt(255*(1-parseInt(d.value)/maxProduction))+")");
+
+                c = Math.round((d.Value * 255)/max);
+                c = -c + 255;
+                //c = (255*(1-d.Value/max))
+                d3.selectAll("."+simplifyName(d.Country)).style("fill", "rgb("+c+","+
+                                                                              c+","+
+                                                                              c+")");
               });
             
           
@@ -896,7 +925,7 @@ function highlight_this_item(button, item){
       /* FIRST HIDE ALL COUNTRIES */
       d3.selectAll(".country")
         .transition()
-        .style("opacity", .5);
+        .style("opacity", 0.1); 
 
       data.forEach(function(d){
         if (simplifyName(d.Source) == simplifyName(selectedCountry) && d.Product == selected_item
