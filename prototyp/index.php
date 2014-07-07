@@ -379,8 +379,8 @@ function highlight_this_item(button, item){
               }else{
                 //NO COUNTRY SELECTED
                 set_portrait_country("Select a country");
-                set_portrait_text("&nbsp; ");
-                set_portrait_value("&nbsp; ");
+                set_portrait_text("&nbsp;");
+                set_portrait_value("&nbsp;");
               }
             }
 
