@@ -279,10 +279,11 @@ function highlight_this_item(button, item){
       var offsetT = document.getElementById('map').offsetTop+(height/2)+20;
 
     /* COLORSCALE */
-    var colorScale = d3.scale.linear()
+    var colorScaleTradeLine = d3.scale.linear()
               .domain([-1,-.75,-.5,-.25,0,.25,.5,.75,1])
               .range(colorbrewer.RdYlBu[9]);
 
+    var colorScale;
     var colorScalePrice = ['#668f3b', '#557630', '#405b23', '#304819', '#1e330d'];
 
     var colorScaleAnimals = ['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
@@ -813,7 +814,7 @@ function highlight_this_item(button, item){
       });
     }
 
-    
+    var maxValueCountryColor;
     function colorCountry(data_table, domain, item, element){
       //check if any sub_icon is selected
       //if not, color everything the same color
@@ -836,55 +837,21 @@ function highlight_this_item(button, item){
             //var json = JSON.parse(_data);
             //var c = json.country;
             var data = _data;
-            var max = -1; //needs to be resetted every time
+            maxValueCountryColor = -1; //needs to be resetted every time
             
-            var c = 255;
-            greyColors = new Array("37","99","150","189","217","247");
-            /*
             data.forEach(function(d){
-              var v = d.value;
-              if(v>10000){
-                c=200;
-              }else{
-                c=100;
-              };
-              d3.selectAll("."+simplifyName(d.country)).style("fill", "rgb(255,255,"+c+")");
-            
+              maxValueCountryColor = Math.max(maxValueCountryColor, d.Value);
             });
 
 
-*/
-            /*
-              ## PORTRAIT ##
-            */
-            
- 
+            d3.selectAll(".country").style("fill","#e0e0e0"); //"deselect" all countries
+            data.forEach(function(d){
 
-            
-
-               data.forEach(function(d){
-                max = Math.max(max, d.Value);
-                //max = 150000*1000; //set one fix value to compare both (im/export) equally
-              });
-
-
-              d3.selectAll(".country").style("fill","#e0e0e0"); //"deselect" all countries
-              data.forEach(function(d){
-
-                /*if(range_by_maximum){
-                  c = proportion(d.Value,max,0,183);
-                }else{
-                  c = proportion(Math.log(d.Value),Math.log(max),0,183);
-                }
-                
-                d3.selectAll("."+simplifyName(d.Country)).style("fill", "rgb("+c+","+
-                                                                        c+","+
-                                                                        c+")");*/
                 var color;
                 if (item == "Meat live weight, chicken") 
-                  color = colorScalePrice[proportion(d.Value,max,0,4)];
+                  color = colorScalePrice[proportion(d.Value,maxValueCountryColor,0,4)];
                 else 
-                  color = colorScaleAnimals[proportion(d.Value,max,0,4)];
+                  color = colorScaleAnimals[proportion(d.Value,maxValueCountryColor,0,4)];
 
                 d3.selectAll("."+simplifyName(d.Country)).style("fill", color);
 
@@ -1058,6 +1025,7 @@ function highlight_this_item(button, item){
     */
     function updateBundledEdges(){
       d3.selectAll(".link").remove();
+      d3.selectAll(".dot").remove();
 
       var _data = filterData2(selected_item);
 
@@ -1076,7 +1044,7 @@ function highlight_this_item(button, item){
           })
           .style({
             "stroke": function(d){
-              return colorScale(d.data.Value);
+              return colorScaleTradeLine(d.data.Value);
             },
             "stroke-width": function(d){ 
               //re-calc maxImport/maxExport
@@ -1125,8 +1093,16 @@ function highlight_this_item(button, item){
           .on("mouseout",  function(d,i) {
             tooltip.classed("hidden", true);
           })
+          .call(zoom)
+          ;
 
-          .call(zoom);
+          g.append("circle")
+            .attr({
+              class: "dot",
+              cx: projection(countries[selectedCountry].coordinates)[0],
+              cy: projection(countries[selectedCountry].coordinates)[1],
+              r: 3,
+            })
     }
 
     function updateCountryOpacity(){
@@ -1327,6 +1303,81 @@ function highlight_this_item(button, item){
           })
           .on("click", function(d){ clickCountry(d); }); 
     }
+
+    /* DRAW LEGEND */
+    function drawLegend(){
+
+      /* TITLE */
+      svg.append("text")
+        .text("Trade Lines\n")
+        .attr({
+          x: 10-width/2,
+          y: 20-height/2,
+        });
+
+      /* IMPORT / EXPORT */
+      [8,4,0].forEach(function(d,i){
+
+        svg.append("line")
+          .attr({
+            class: "legend",
+            x1: 21-width/2,
+            y1: 34-height/2+i*16,
+            x2: 21-width/2+30,
+            y2: 34-height/2+i*16,
+          })
+          .style({
+            "stroke-width": 2,
+            stroke: colorbrewer.RdYlBu[9][d],
+          })
+          ;
+
+        /* LABEL IMPORT */
+        svg.append("text")
+          .text(function(){
+            if (i==0) return "Import outweights export";
+            else if (i==1) return "Import equals export";
+            else return "Export outweights import";
+          })
+          .attr({
+            class: "legend",
+            x: 21-width/2+36,
+            y: 38-height/2+i*16,
+          });
+
+      });
+
+      var boxSize = 20;
+      /* COUNTRY COLORING */
+      colorScaleAnimals.forEach(function(d,i){
+
+        svg.append("rect")
+          .attr({
+            class: "legend",
+            x: 241-width/2+i*boxSize,
+            y: 31-height/2,
+            width: boxSize,
+            height: boxSize/4,
+          })
+          .style({
+            fill: d,
+          })
+
+        /* LABEL IMPORT */
+        svg.append("text")
+          .text(i)
+          .attr({
+            class: "legend",
+            x: 241-width/2+i*boxSize,
+            y: 51-height/2,
+          });
+  
+     
+      });
+
+      //g.append("rect")
+    }
+    drawLegend();
 
     /*
         RE-DRAWS THE MAP

@@ -17,6 +17,10 @@ body{
   padding-left: 100px;
 }
 
+.dot{
+  fill: #4575b4;
+}
+
 p#title{
   color:#333;
   margin-bottom: 10px;
