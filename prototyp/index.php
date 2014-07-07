@@ -273,6 +273,10 @@ function highlight_this_item(button, item){
               .domain([-1,-.75,-.5,-.25,0,.25,.5,.75,1])
               .range(colorbrewer.RdYlBu[9]);
 
+    var colorScalePrice = ['#668f3b', '#557630', '#405b23', '#304819', '#1e330d'];
+
+    var colorScaleAnimals = ['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
+
     setup(width,height);
 
     loadWorld();
@@ -447,7 +451,15 @@ function highlight_this_item(button, item){
           width: 2*width,
           height: 2*height,
         })
-        .style("fill", "#EBF8FF");
+        .style("fill", "#EBF8FF")
+        .on("click", function(){
+          //disable stuff
+          selectedCountry = "none";   
+          getDataFromDatabase(selectedCountry);
+          updateBundledEdges();
+          updateCountryOpacity();
+        })
+        ;
 
       g = svg.append("g");
 
@@ -816,16 +828,7 @@ function highlight_this_item(button, item){
             var data = _data;
             var max = -1; //needs to be resetted every time
             
-
-/*
-            $.each(data.data, function(index,data) {        
-                d3.selectAll((data.country)).style("fill", "rgb(255,255,0)");
-                console.log(data.country);
-            });
-    
-  */          
-            var c = 255; //parseInt(255*(1-parseInt(d.Value)))
-            //greyColors = new Array("247","217","189","150","99","37");
+            var c = 255;
             greyColors = new Array("37","99","150","189","217","247");
             /*
             data.forEach(function(d){
@@ -858,25 +861,23 @@ function highlight_this_item(button, item){
               d3.selectAll(".country").style("fill","#e0e0e0"); //"deselect" all countries
               data.forEach(function(d){
 
-                //c = Math.round((d.Value * 255)/max);
-                if(range_by_maximum){
-                  //c = Math.round((d.Value * 255)/max);
+                /*if(range_by_maximum){
                   c = proportion(d.Value,max,0,183);
                 }else{
-                  //c = Math.round((Math.log(d.Value) * 255)/Math.log(max));
                   c = proportion(Math.log(d.Value),Math.log(max),0,183);
-                }     
-                
-                
-                //RANGE DOESN'T WORK YET
-                /*
-                var i = Math.round((c*6)/255);
-                c = greyColors[i];
-                */
+                }
                 
                 d3.selectAll("."+simplifyName(d.Country)).style("fill", "rgb("+c+","+
                                                                         c+","+
-                                                                        c+")");
+                                                                        c+")");*/
+                var color;
+                if (item == "Meat live weight, chicken") 
+                  color = colorScalePrice[proportion(d.Value,max,0,4)];
+                else 
+                  color = colorScaleAnimals[proportion(d.Value,max,0,4)];
+
+                d3.selectAll("."+simplifyName(d.Country)).style("fill", color);
+
               });
 
               
