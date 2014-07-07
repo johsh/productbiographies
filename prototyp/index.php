@@ -66,6 +66,9 @@ TO DO:
         color: #888888;
         margin-bottom: 2px;
       }
+      #portrait_text{
+        color: #aaa;
+      }
       .highlightCountry{
         background-color: red;
       }
@@ -404,7 +407,7 @@ function highlight_this_item(button, item){
 
             function adjust_bar_value_and_width(this_id, text, px, real_value){
               $(this_id)
-                .html("<b>"+real_value+"</b>" + " " + text)
+                .html(real_value + " " + "<span style='color:#aaa'>"+text+"</span>")
                 .animate({width: px + "px"},500);
             }
             
