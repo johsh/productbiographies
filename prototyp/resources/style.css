@@ -69,15 +69,14 @@ a, a:link, a:visited, a:focus, :hover, a:active{
   margin-left: auto;
   margin-right: auto;
   width: 625px;
-  height: auto;
-  margin-bottom: 10px;
+  height: 130px;
+  margin-bottom: 0px;
   }
 #portrait{
   width: 300px; /*same as statistics*/
   font-weight: 200;
   color: inherit;
   float: left;
-  margin-bottom: 15px;
 }
 #domain_selection{
   text-align: right;
