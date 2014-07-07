@@ -18,7 +18,12 @@ body{
 }
 
 .dot{
-  fill: #4575b4;
+  fill: #b7b7b7;
+}
+
+.legend.box{
+  fill: #fff;
+  opacity: .6;
 }
 
 p#title{

@@ -681,7 +681,7 @@ function highlight_this_item(button, item){
         })
         data = _dataCombined;
 
-        clickCountry({properties: {name: "germany"}});
+        clickCountry({properties: {name: "Germany"}});
       });
 
     }
@@ -856,9 +856,7 @@ function highlight_this_item(button, item){
                 d3.selectAll("."+simplifyName(d.Country)).style("fill", color);
 
               });
-
-              
-            
+           drawLegend(item != "Meat live weight, chicken"); 
           } 
 
         });
@@ -1096,13 +1094,18 @@ function highlight_this_item(button, item){
           .call(zoom)
           ;
 
-          g.append("circle")
-            .attr({
-              class: "dot",
-              cx: projection(countries[selectedCountry].coordinates)[0],
-              cy: projection(countries[selectedCountry].coordinates)[1],
-              r: 3,
-            })
+          if (selectedCountry != "none" && 
+              selectedCountry != undefined ||
+              countries[selectedCountry] != undefined)
+          {
+            g.append("circle")
+              .attr({
+                class: "dot",
+                cx: projection(countries[selectedCountry].coordinates)[0],
+                cy: projection(countries[selectedCountry].coordinates)[1],
+                r: 3,
+              })
+          }
     }
 
     function updateCountryOpacity(){
@@ -1305,12 +1308,29 @@ function highlight_this_item(button, item){
     }
 
     /* DRAW LEGEND */
-    function drawLegend(){
+    function drawLegend(animalNotPrice){
+
+      d3.selectAll(".legend").remove();
+
+      svg.append("rect")
+          .attr({
+            class: "legend box",
+            x: 6-width/2,
+            y: 6-height/2,
+            width: function(){
+              return 445;
+
+              if (maxValueCountryColor == undefined) return 220;
+              else return 445;
+            },
+            height: 70,
+          })
 
       /* TITLE */
       svg.append("text")
         .text("Trade Lines\n")
         .attr({
+          class: "legend",
           x: 10-width/2,
           y: 20-height/2,
         });
@@ -1327,7 +1347,7 @@ function highlight_this_item(button, item){
             y2: 34-height/2+i*16,
           })
           .style({
-            "stroke-width": 2,
+            "stroke-width": 4,
             stroke: colorbrewer.RdYlBu[9][d],
           })
           ;
@@ -1347,35 +1367,81 @@ function highlight_this_item(button, item){
 
       });
 
-      var boxSize = 20;
+      //if (maxValueCountryColor == undefined) return;
+
+      /* TITLE */
+      svg.append("text")
+        .text("Country fill\n")
+        .attr({
+          class: "legend",
+          x: 241-width/2,
+          y: 20-height/2,
+        });
+
+      var boxSize = 40;
       /* COUNTRY COLORING */
-      colorScaleAnimals.forEach(function(d,i){
+      var _scale;
+      if (animalNotPrice) _scale = colorScaleAnimals;
+      else _scale = colorScalePrice;
+
+      _scale.forEach(function(d,i){
 
         svg.append("rect")
           .attr({
             class: "legend",
             x: 241-width/2+i*boxSize,
-            y: 31-height/2,
+            y: 28-height/2,
             width: boxSize,
-            height: boxSize/4,
+            height: 10,
           })
           .style({
             fill: d,
-          })
-
-        /* LABEL IMPORT */
-        svg.append("text")
-          .text(i)
-          .attr({
-            class: "legend",
-            x: 241-width/2+i*boxSize,
-            y: 51-height/2,
-          });
-  
-     
+          })  
       });
 
-      //g.append("rect")
+      /* LABEL IMPORT */
+      svg.append("text")
+        .text("0")
+        .attr({
+          class: "legend",
+          x: 241-width/2,
+          y: 51-height/2,
+        });
+
+      svg.append("text")
+        .text(maxValueCountryColor)
+        .attr({
+          class: "legend",
+          x: 241-width/2+5*boxSize,
+          y: 51-height/2,
+        })
+        .style({
+          "text-anchor": "end",
+        });
+
+        /* NO DATA */
+        svg.append("line")
+          .attr({
+            class: "legend",
+            x1: 241-width/2,
+            y1: 65-height/2,
+            x2: 241-width/2+30,
+            y2: 65-height/2,
+          })
+          .style({
+            "stroke-width": 10,
+            stroke: "#b7b7b7",
+          })
+          ;
+
+      svg.append("text")
+        .text("No data available")
+        .attr({
+          class: "legend",
+          x: 281-width/2,
+          y: 70-height/2,
+        })
+          
     }
     drawLegend();
 
