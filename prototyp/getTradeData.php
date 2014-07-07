@@ -20,6 +20,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	$cattle_import = $chickens_import = $pigs_import
 	= $cattle_export = $chickens_export = $pigs_export 
 	= $cattle_production = $chickens_production = $pigs_production
+	= $chickens_per_year = $chickens_per_min
 	= $chicken_price
 	= 0;
 
@@ -150,6 +151,8 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 
 	}
 
+
+
 /*	
 	REQUEST: TRADE-MATRIX
 	------------------
@@ -269,9 +272,9 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 
 		
 
-		$per_year = adjust_value($production_element, $production_value, 2);
+		$chickens_per_year = adjust_value($production_element, $production_value, 2);
 
-		$chickens_production = round($per_year / 365 / 24 / 60);
+		$chickens_per_min = round($chickens_per_year / 365 / 24 / 60);
 
 /*
 		if($production_item == "Cattle"){
@@ -392,6 +395,21 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	}
 	
 	
+	/*
+		BAR CHARTS
+		CALCULATE BAR VALUES
+	*/
+		
+
+		$chickens_per_year_px = 300;
+		$m = $chickens_per_year_px / $chickens_per_year;
+		$chickens_import_px = round($chickens_import * $m);
+		$chickens_export_px = round($chickens_export * $m);
+		$population_px = round($this_population * $m);
+
+
+
+
 
 	//echo "average_dist: " . round($average_dist) . ", total_value: " . $total_value;
 
@@ -412,13 +430,20 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	"pigs_import" => $pigs_import,
 	"pigs_export" => $pigs_export,
 	"cattle_production" => $cattle_production,
-	"chickens_production" => $chickens_production,
+	"chickens_per_min" => $chickens_per_min,
+	"chickens_per_year" => $chickens_per_year,
 	"pigs_production" => $pigs_production,
 	"average_dist" => $average_dist,
 	"average_import" =>$average_import,
 	"average_export" =>$average_export,
 	"total_reporters" => $total_reporters,
-	"price" => $chicken_price
+	"price" => $chicken_price,
+	"chickens_per_year_px" => $chickens_per_year_px,
+	"chickens_import_px" => $chickens_import_px,
+	"chickens_export_px" => $chickens_export_px,
+	"population_px" => $population_px
+
+
 
 		);
 

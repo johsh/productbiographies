@@ -53,8 +53,12 @@ TO DO:
     .portrait_bar{
       width:100px; /*changes interactively*/
       height:15px;
-      background-color:#C6FFCE;
+      background-color:#C8BBA1;/*C6FFCE*/
       white-space: nowrap;
+      padding-top: 3px;
+      padding-bottom: 2px;
+      margin-top: 2px;
+      margin-bottom: 2px;
       }
       .highlightCountry{
         background-color: red;
@@ -80,6 +84,22 @@ TO DO:
         </a>
         
       </div>
+
+
+      <!--
+        BAR CHARTS
+      -->
+      <div id="statistics_container">
+        <div id="statistics_country" style="margin-bottom:5px">GERMANY</div>
+        <div id="slaughter" class="portrait_bar"></div>
+        <div id="population" class="portrait_bar"></div>
+        <div id="import" class="portrait_bar"></div>
+        <div id="export" class="portrait_bar"></div>
+      </div>
+      <div id="statistics_line"></div>
+
+
+
     </div>
 
     <div id="portrait">
@@ -110,14 +130,6 @@ TO DO:
     </div>
     </div>
 
-    
-      
-    
-    
-    
-
-    
-    
 
 
 <!--
@@ -284,8 +296,13 @@ function highlight_this_item(button, item){
           success: function(data) {
             var json = JSON.parse(data);
             var c = json.country;
+            var p = json.population;
+            var i = json.chickens_import;
+            var e = json.chickens_export;
+            var slaughter = json.chickens_per_year_px;
             
-            portrait_production_value = json.chickens_production;
+            portrait_production_value = json.chickens_per_min;
+
             portrait_price_value = Math.round((json.price / 1000)*100)/100;
               if(portrait_price_value==0){
                 portrait_price_value="not available";
@@ -294,8 +311,27 @@ function highlight_this_item(button, item){
             portrait_export_value = Math.round(json.average_export);
             portrait_trade_value = json.total_reporters;
 
+             if(selectedCountry=="none"){
+                slaughter = 0;
+             }
+
+
+            adjust_bar_value_and_width("#slaughter", "slaughter", slaughter, json.chickens_per_year);
+            adjust_bar_value_and_width("#population", "Population", json.population_px, p);
+            adjust_bar_value_and_width("#import", "Import", json.chickens_import_px, i);
+            adjust_bar_value_and_width("#export", "Export", json.chickens_export_px, e);
+
+            if(selectedCountry=="none"){
+              $('#population').html(" ");
+              $('#import').html(" ");
+              $('#export').html(" ");
+              $('#slaughter').text("to see statistics");
+            }
             
+            
+
             write_portrait(selectedCountry);
+            
             
         
           }             
@@ -331,6 +367,7 @@ function highlight_this_item(button, item){
             function set_portrait_country(this_c){
               this_c = this_c.toUpperCase();
               $('#portrait_country').html(this_c); 
+              $('#statistics_country').html(this_c); 
             }
             function set_portrait_text(text){
               $('#portrait_text').html(text); 
@@ -348,10 +385,10 @@ function highlight_this_item(button, item){
             }
             */
 
-            function adjust_bar_value_and_width(this_id, text, value){
+            function adjust_bar_value_and_width(this_id, text, px, real_value){
               $(this_id)
-                .html(text + " " + value)
-                .animate({width: value/700000 + "px"},500);
+                .html("<b>"+real_value+"</b>" + " " + text)
+                .animate({width: px + "px"},500);
             }
             
 

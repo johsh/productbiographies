@@ -32,7 +32,22 @@ p#intro{
   border-bottom: solid thin #ddd;
 }
 
+#statistics_container{
+  position: absolute;
+  top: 160px;
+  left: 105px;
+  width: 400px;
+  height: 130px;
+}
 
+#statistics_line{
+  position: absolute;
+  top: 180px;
+  left: 105px;
+  width: 299px;
+  height: 85px; 
+  border-right: solid thin #999;
+}
 
 a, a:link, a:visited, a:focus, :hover, a:active{
   text-decoration: none;
