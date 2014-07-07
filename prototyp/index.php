@@ -19,13 +19,18 @@
 <!--
 
 TO DO:
-- Möglichkeit KEIN Land auszuwählen
+    - Möglichkeit KEIN Land auszuwählen
 - selectedCountry highlighten (Farbe)
 - Eindeutige Werte (in Zahlen) der Karteneinfärbung entnehmen, Tooltip?
 - Legende für Länderfarben
 - Range für Länderfarben (6 Schritte) (colorbrewer)?
 - Länderfarbe nur auf Partnerländer anwenden, der Rest hat Einheitsfarbe-/Opacity
+<<<<<<< HEAD
+=======
 - sepia styles
+- dead animals wegnehmen?
+- introtext
+>>>>>>> FETCH_HEAD
 
 -->
   </head>
@@ -51,85 +56,63 @@ TO DO:
     }
     
     .portrait_bar{
-      width:100px; /*changes interactively*/
+      width:0px; /*changes interactively*/
       height:15px;
-      background-color:#C8BBA1;/*C6FFCE*/
+      background-color:#C6FFCE;
       white-space: nowrap;
-      padding-top: 3px;
-      padding-bottom: 2px;
-      margin-top: 2px;
-      margin-bottom: 2px;
       }
       .highlightCountry{
         background-color: red;
       }
+<<<<<<< HEAD
+=======
+
+      p:hover{
+        color: #666; /*bugfix ?*/
+      }
       
 
+>>>>>>> FETCH_HEAD
   </style>
 
   <body>
     
 
     <div id="wrapper">
+<<<<<<< HEAD
+    <p class="center">CHICKEN ROADTRIP</p>
+=======
     <p class="center" id="title">CHICKEN ROADTRIP</p>
-    <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool.</p>
+    <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool. Use the following map to investigate...</p>
+>>>>>>> FETCH_HEAD
     <div>
-
       <div id="item_selection" class="center">
-        <a href="#" id="select_live">
-            <img src="images/icon_alive.png" title="Chicken live" class="icon icon_main" id="icon_alive">
-        </a>
-        <a href="#" id="select_meat">
-          <img src="images/icon_dead.png" title="Chicken meat" class="icon icon_main" id="icon_meat" style="opacity:0.3">
-        </a>
-        
+        <a href="#" id="select_live">Alive</a>
+        <a href="#" id="select_meat">Dead</a>
+        <a href="#" id="select_canned">Canned</a>
       </div>
-
-
-      <!--
-        BAR CHARTS
-      -->
-      <div id="statistics_container">
-        <div id="statistics_country" style="margin-bottom:5px">GERMANY</div>
-        <div id="slaughter" class="portrait_bar"></div>
-        <div id="population" class="portrait_bar"></div>
-        <div id="import" class="portrait_bar"></div>
-        <div id="export" class="portrait_bar"></div>
-      </div>
-      <div id="statistics_line"></div>
-
-
-
+    </div>
+    <div id="domain_selection" class="center">
+        <a href="#" id="select_production">Production</a>
+        <a href="#" id="select_trade">TESTING</a>
+        <a href="#" id="select_price">Price</a>    
+        <a href="#" id="select_slaughtered">Slaughtered</a>
+        <a href="#" id="select_importAnimals">imported-Animals</a> 
+        <a href="#" id="select_exportAnimals">export-Animals</a>    
+    </div>
+    <br/>
+    <div id="portrait" class="center">
+      <p id="portrait_country">THIS COUNTRY</p>
+        <p id="portrait_text"></p>
+        <p id="portrait_data_distance" class="portrait_big">...</p>  
     </div>
 
-    <div id="portrait">
-      <p id="portrait_country" style="text-align:right">THIS COUNTRY</p>
-      <p style="height:40px; text-align:right">
-        <span id="portrait_value" class="portrait_big" style="font-size:20px; display:block">...</span>  
-        <span id="portrait_text" >...</span>
-      </p>  
-
-        <!--
-          SELECT A DOMAIN
-        -->
-        <div id="domain_selection" >
-        <a href="#" id="select_production">
-          <img src="images/icon_production.png" title="Production" class="icon icon_sub" id="icon_production">
-        </a>
-        <!--<a href="#" id="select_trade">TESTING</a>-->
-        <a href="#" id="select_price">
-          <img src="images/icon_price.png" title="Price" class="icon icon_sub" id="icon_price">
-        </a>    
-        <!--<a href="#" id="select_slaughtered">        </a>-->
-        <a href="#" id="select_importAnimals">
-          <img src="images/icon_travel.png" title="Import" class="icon icon_sub" id="icon_import">
-        </a> 
-        <a href="#" id="select_exportAnimals">
-          <img src="images/icon_travel.png" title="Export" class="icon icon_sub" id="icon_export">
-        </a>    
+    <div>
+      <div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>
     </div>
-    </div>
-
+    
+    <img src="resources/legende.png">
+    
 
 
 <!--
@@ -138,9 +121,6 @@ TO DO:
     <div class="button" id="pig" onclick="togglePig()">[pig]</div>
 -->
     <div id="map"></div>
-    <img src="resources/legende.png">
-    <div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>
-
 
     <p class="center">src: FAOSTAT</p>
   </div>
@@ -159,84 +139,74 @@ TO DO:
     -------------------
 */
     var average_dist = 0;
-    var selected_domain = "none";
+    var selected_domain = "production";
     var selected_item = "Chickens" // or "Meat, chicken"
 
 /*
   ## SELECTING AN ITEM ##
   ------------------------
 */
-  $("#icon_alive").click(function(){
+  $('#select_live').click(function(){
         highlight_this_item(this, "Chickens");
-        return false; //prevent to scroll up
     });
-  $('#icon_meat').click(function(){
+  $('#select_meat').click(function(){
         highlight_this_item(this, "Meat, chicken"); 
-        return false; //prevent to scroll
     });
-  
+  $('#select_canned').click(function(){
+        highlight_this_item(this, "Meat, chicken, canned");
+    });
+
+
 /*
   ## WHEN SELECTING A DOMAIN ##
   ------------------------
 */
-  $('#icon_production').click(function(){
+  $('#select_production').click(function(){
         highlight_this_domain(this, "production");
         colorCountry("produktbiographien_LivestockPrimeryProduction","Livestock Primary", "Meat indigenous, chicken","Production");
-        return false; //prevent to scroll up after ajax
         //loadProduction();
     });
-/*
-  $('#select_trade').click(function(){        highlight_this_domain(this, "trade");        colorCountry("dummy");    });
-*/
-  $('#icon_price').click(function(){
+  $('#select_trade').click(function(){
+        highlight_this_domain(this, "trade");
+        colorCountry("dummy");
+    });
+  $('#select_price').click(function(){
         highlight_this_domain(this, "price");
         colorCountry("produktbiographien_annualPrices", "Producer Prices - Annual", "Meat live weight, chicken", "Price");
-        return false; //prevent to scroll up after ajax
         //loadPrice();
     });
-/*
-  $('#select_slaughtered').click(function(){        highlight_this_domain(this, "slaughtered");        colorCountry("produktbiographien_LivestockPrimeryProduction","Livestock Primary", "Meat, chicken","Producing");        //loadSlaughtered();  });
-*/
-  $('#icon_import').click(function(){
-        highlight_this_domain(this, "import");
-        colorCountry("produktbiographien_trade","Live animals","Chickens","Import");
-        return false; //prevent to scroll up after ajax
-    });
-  $('#icon_export').click(function(){
-        highlight_this_domain(this, "export");
-        colorCountry("produktbiographien_trade","Live animals", "Chickens","Export");
-        return false; //prevent to scroll up after ajax
+  $('#select_slaughtered').click(function(){
+        highlight_this_domain(this, "slaughtered");
+        colorCountry("produktbiographien_LivestockPrimeryProduction","Livestock Primary", "Meat, chicken","Producing");
+        //loadSlaughtered();
     });
 
-  // ICON INTERACTION
-  $('.icon').hover(function(){
-    if( $(this).css("opacity") != 1){
-      $(this).css("opacity", 0.8);  
-    };    
-  },function(){
-    if( $(this).css("opacity") != 1){
-      $(this).css("opacity", 0.3);  
-    };
-  });
+  $('#select_importAnimals').click(function(){
+        highlight_this_domain(this, "none");
+        colorCountry("produktbiographien_trade","Live animals","Chickens","Import");
+    });
+  $('#select_exportAnimals').click(function(){
+        highlight_this_domain(this, "none");
+        colorCountry("produktbiographien_trade","Live animals", "Chickens","Export");
+    });
+
 
 function highlight_this_item(button, item){
     //highlights only this button
     //sets 'selected_domain'
-    $('.icon_main').css("opacity", .3);
-    $(button).css("opacity", 1);
+    $('#item_selection a').css("background-color","yellow");
+    $(button).css("background-color","red");
     selected_item = item;
     updateBundledEdges();
     updateCountryOpacity();
  }
 
  function highlight_this_domain(button, domain){
-    $('.icon_sub').css("opacity", .3);
-    if(selected_domain==domain){
-      selected_domain = "none";
-    }else{
-      selected_domain = domain;
-      $(button).css("opacity", 1);  
-    }
+    //highlights only this button
+    //sets 'selected_domain'
+    $('#domain_selection a').css("background-color","yellow");
+    $(button).css("background-color","#91FFA2");
+    selected_domain = domain;
  }
 
 
@@ -247,7 +217,7 @@ function highlight_this_item(button, item){
         .scaleExtent([1, 8])
         .on("zoom", move);
 
-    var width = document.getElementById('map').offsetWidth-200;
+    var width = document.getElementById('map').offsetWidth-60;
     var height = width / 2;
 
     var topo,projection,path,svg,g;
@@ -275,12 +245,6 @@ function highlight_this_item(button, item){
 
 
 
-      var portrait_production_value = 0;
-      var portrait_production_price = 0;
-      var portrait_import_value = 0;
-      var portrait_export_value = 0;
-      var portrait_trade_value = 0;
-    
      function getDataFromDatabase(c){
        
         $.ajax({
@@ -292,31 +256,26 @@ function highlight_this_item(button, item){
             showChickens : showChicken,
             showPigs : showPig            
           },
+          //gender : set_gender,
 
           success: function(data) {
             var json = JSON.parse(data);
             var c = json.country;
-            var p = json.population;
-            var i = json.chickens_import;
-            var e = json.chickens_export;
-            var slaughter = json.chickens_per_year_px;
-            
-            portrait_production_value = json.chickens_per_min;
+            average_dist = Math.round(json.average_dist);
 
-            portrait_price_value = Math.round((json.price / 1000)*100)/100;
-              if(portrait_price_value==0){
-                portrait_price_value="not available";
-              }
-            portrait_import_value = Math.round(json.average_import);
-            portrait_export_value = Math.round(json.average_export);
-            portrait_trade_value = json.total_reporters;
+            $('#portrait_country').html(c.toUpperCase());
 
-             if(selectedCountry=="none"){
-                slaughter = 0;
-             }
-
-
-            adjust_bar_value_and_width("#slaughter", "slaughter", slaughter, json.chickens_per_year);
+<<<<<<< HEAD
+            if(selected_domain=="production"){
+              set_portrait("some number", "Some production sentence");
+            }
+            if(selected_domain=="trade"){
+              set_portrait(average_dist  + " km", "A traded chicken has an average journey of");
+            }
+            if(selected_domain=="consumption"){
+              set_portrait("some other number", "Some concumption sentence");
+=======
+            adjust_bar_value_and_width("#slaughter", "Slaughter", slaughter, json.chickens_per_year);
             adjust_bar_value_and_width("#population", "Population", json.population_px, p);
             adjust_bar_value_and_width("#import", "Import", json.chickens_import_px, i);
             adjust_bar_value_and_width("#export", "Export", json.chickens_export_px, e);
@@ -326,18 +285,18 @@ function highlight_this_item(button, item){
               $('#import').html(" ");
               $('#export').html(" ");
               $('#slaughter').text("to see statistics");
+>>>>>>> FETCH_HEAD
             }
-            
+
             
 
-            write_portrait(selectedCountry);
             
-            
-        
           }             
         });  
         
     }
+<<<<<<< HEAD
+=======
 
             function write_portrait(country){
               if(country!="none"){
@@ -345,7 +304,7 @@ function highlight_this_item(button, item){
                 set_portrait_country(country);
                 if(selected_domain!="none"){
                   //DOMAIN SELECTED
-                  if(selected_domain=="production"){set_portrait_text("Slaughter per minute");set_portrait_value(portrait_production_value);}
+                  if(selected_domain=="production"){set_portrait_text("Production per minute");set_portrait_value(portrait_production_value);}
                   if(selected_domain=="price"){set_portrait_text("USD/kilo");set_portrait_value(portrait_price_value);}
                   if(selected_domain=="import"){set_portrait_text("average import distance (km)");set_portrait_value(portrait_import_value);}
                   if(selected_domain=="export"){set_portrait_text("average export distance (km)");set_portrait_value(portrait_export_value);}
@@ -378,17 +337,17 @@ function highlight_this_item(button, item){
             }
 
             /*
+>>>>>>> FETCH_HEAD
             function set_portrait(number, text){
               $('#portrait_text').html(text); 
               $('#portrait_data_distance').html(number);
               
             }
-            */
 
-            function adjust_bar_value_and_width(this_id, text, px, real_value){
+            function adjust_bar_value_and_width(this_id, text, value){
               $(this_id)
-                .html("<b>"+real_value+"</b>" + " " + text)
-                .animate({width: px + "px"},500);
+                .html(text + " " + value)
+                .animate({width: value/700000 + "px"},500);
             }
             
 
@@ -732,8 +691,6 @@ function highlight_this_item(button, item){
         FILTERS DATA BY FOLLOWING CRITERIA
     */
     var selectedCountry = "germany";
-
-    
     // TBC var selectedYear = 2011;
     
     var showCattle = false;
@@ -787,12 +744,8 @@ function highlight_this_item(button, item){
 
     
     function colorCountry(data_table, domain, item, element){
-      //check if any sub_icon is selected
-      //if not, color everything the same color
-      if(selected_domain!="none"){
-
       //TRY TO GET COUNTRY FILL DATA FROM DATA BASE
-      
+    
           $.ajax({
           type: 'GET',
           url: 'getColorData.php',
@@ -805,7 +758,7 @@ function highlight_this_item(button, item){
           },
 
           success: function(_data) {
-            //var json = JSON.parse(_data);
+            //var json = JSON.parse(data);
             //var c = json.country;
             var data = _data;
             var max = -1; //needs to be resetted every time
@@ -832,16 +785,7 @@ function highlight_this_item(button, item){
               d3.selectAll("."+simplifyName(d.country)).style("fill", "rgb(255,255,"+c+")");
             
             });
-
-
 */
-            /*
-              ## PORTRAIT ##
-            */
-            
- 
-
-            
 
                data.forEach(function(d){
                 max = Math.max(max, d.Value);
@@ -873,22 +817,11 @@ function highlight_this_item(button, item){
                                                                         c+")");
               });
 
-              
             
-          } 
-
-        });
-
-
- 
-        }else{
-          //if sub_icon is deselected no country gets colored
-          d3.selectAll(".country").style("fill","#b7b7b7");
-     
-        }
-        write_portrait(selectedCountry);
-      }
-
+          }           
+        }); 
+          }
+    
     function proportion(value,max,minrange,maxrange) {
       return Math.round(((max-value)/(max))*(maxrange-minrange))+minrange;
     }
@@ -988,7 +921,7 @@ function highlight_this_item(button, item){
     function clickCountry(country){
       if(selectedCountry==country.properties.name){
         //DESELECT COUNTRY WHEN DOUBLE CLICK
-        selectedCountry = "none";            
+        selectedCountry = "none";
       }else{
         selectedCountry = country.properties.name;
       }
@@ -997,7 +930,6 @@ function highlight_this_item(button, item){
       getDataFromDatabase(selectedCountry);
       updateBundledEdges();
       updateCountryOpacity();
-      
     }
 
 
