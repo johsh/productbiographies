@@ -32,27 +32,10 @@ p#intro{
   border-bottom: solid thin #ddd;
 }
 
-#statistics_container{
-  position: absolute;
-  top: 160px;
-  left: 105px;
-  width: 400px;
-  height: 130px;
-}
-
-#statistics_line{
-  position: absolute;
-  top: 180px;
-  left: 105px;
-  width: 299px;
-  height: 85px; 
-  border-right: solid thin #999;
-}
-
 a, a:link, a:visited, a:focus, :hover, a:active{
   text-decoration: none;
-  color: inherit;
 }
+
 
 /*
   ## ICONS ##
@@ -68,7 +51,7 @@ a, a:link, a:visited, a:focus, :hover, a:active{
   .icon_sub{
         width: 50px;
         height: 50px;
-        padding: 4px;
+        padding-left: 4px;
         opacity: 0.3;
       }
 
@@ -80,26 +63,36 @@ a, a:link, a:visited, a:focus, :hover, a:active{
   padding-top: 37px;
 }
 
-#domain_selection{
-  padding-bottom: 1px;
-  text-align: right;
-  /*
-  position: absolute;
-  right: 103px;
-  top: 300px;
-  */
-}
 
 
+#info_container{
+  margin-left: auto;
+  margin-right: auto;
+  width: 625px;
+  height: auto;
+  margin-bottom: 10px;
+  }
 #portrait{
+  width: 300px; /*same as statistics*/
   font-weight: 200;
   color: inherit;
-
-  width: 250px;
-  position: absolute;
-  right: 100px;
-  top: 150px;
+  float: left;
+  margin-bottom: 15px;
 }
+#domain_selection{
+  text-align: right;
+  margin-top: 9px;
+}
+#statistics_container{
+  width: 300px;
+  height: auto;
+  float: left;
+  margin-left: 25px;
+  margin-top: 2px;
+}
+
+
+
 #portrait p#portrait_country{
   
 }

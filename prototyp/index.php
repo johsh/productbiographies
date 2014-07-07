@@ -36,38 +36,42 @@ TO DO:
     /*There must be at least some minor styling ;) */
     body{
       font-family: sans-serif;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 200;
-      color: #333;
+      color: #555;
     }
-    h1, h2, h3, h4, h5, h6, p{
+    h1, h2, h3, h4, h5, h6{
       font-weight: 200;
       margin: 0px;
       padding: 3px;
-      color: #666;
     }
-    .portrait_container{
-      width: 100%;
-      min-height: 50px;
-      border: dotted thin #333;
+    p{
+      font-weight: 200;
+      margin: 0px;
+      padding: 0px;
     }
+    
     
     .portrait_bar{
       width:0px; /*changes interactively*/
-      height:15px;
-      background-color:#C8BBA1;/*C6FFCE*/
+      /*background-color:#C8BBA1;*/   /*C6FFCE*/
       white-space: nowrap;
-      padding-top: 3px;
-      padding-bottom: 2px;
-      margin-top: 2px;
-      margin-bottom: 2px;
+      padding-top: 2px;
+      margin-bottom: 4px;
+      border-bottom: solid 2px #C8BBA1;
+      }
+      #portrait_value{
+        font-size: 47px;
+        display: block;
+        color: #888888;
+        margin-bottom: 2px;
       }
       .highlightCountry{
         background-color: red;
       }
 
       p:hover{
-        color: #666; /*bugfix ?*/
+       
       }
       
 
@@ -77,24 +81,57 @@ TO DO:
     
 
     <div id="wrapper">
-    <p class="center" id="title">CHICKEN ROADTRIP</p>
-    <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool. Use the following map to investigate...</p>
-    <div>
-
-      <div id="item_selection" class="center">
-        <a href="#" id="select_live">
-            <img src="images/icon_alive.png" title="Chicken live" class="icon icon_main" id="icon_alive">
-        </a>
-        <a href="#" id="select_meat">
-          <img src="images/icon_dead.png" title="Chicken meat" class="icon icon_main" id="icon_meat" style="opacity:0.3">
-        </a>
-        
-      </div>
-
-
+      <img style="width:75px; height:75px; display:block; padding-bottom: 15px" class="center" src="images/icon_alive.png">
+      <p class="center" id="title">CHICKEN ROADTRIP</p>
+      <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool. Use the following map to investigate...</p>
+    
       <!--
-        BAR CHARTS
+        SELECTION DEAD OR ALIVE
       -->
+      <!--
+            <div id="item_selection" class="center">
+              <a href="#" id="select_live">
+                  <img src="images/icon_alive.png" title="Chicken live" class="icon icon_main" id="icon_alive">
+              </a>
+              <a href="#" id="select_meat">
+                <img src="images/icon_dead.png" title="Chicken meat" class="icon icon_main" id="icon_meat" style="opacity:0.3">
+              </a>
+              
+            </div>
+      -->
+
+      <div id="info_container">
+            
+      
+      
+      <!-- BEGIN PORTRAIT -->
+      <div id="portrait">
+        <!--<p id="portrait_country" style="text-align:right">THIS COUNTRY</p>-->
+        <p style="line-height:0.9; text-align:right">
+          <span id="portrait_value" class="portrait_big">...</span>  
+          <span id="portrait_text" >...</span>
+        </p>  
+
+        <!-- DOMAIN ICONS -->
+        <div id="domain_selection" >
+          <a href="#" id="select_production">
+            <img src="images/icon_production.png" title="Production" class="icon icon_sub" id="icon_production">
+          </a>
+          <a href="#" id="select_price">
+            <img src="images/icon_price.png" title="Price" class="icon icon_sub" id="icon_price">
+          </a>    
+          <a href="#" id="select_importAnimals">
+            <img src="images/icon_travel.png" title="Import" class="icon icon_sub" id="icon_import">
+          </a> 
+          <a href="#" id="select_exportAnimals">
+            <img src="images/icon_travel.png" title="Export" class="icon icon_sub" id="icon_export">
+          </a>    
+        </div>
+
+      </div>
+      <!-- END PORTRAIT -->
+
+      <!-- BEGIN BAR CHARTS -->
       <div id="statistics_container">
         <div id="statistics_country" style="margin-bottom:5px">GERMANY</div>
         <div id="slaughter" class="portrait_bar"></div>
@@ -102,38 +139,8 @@ TO DO:
         <div id="import" class="portrait_bar"></div>
         <div id="export" class="portrait_bar"></div>
       </div>
-      <div id="statistics_line"></div>
+      <!--  END BAR CHARTS -->
 
-
-
-    </div>
-
-    <div id="portrait">
-      <p id="portrait_country" style="text-align:right">THIS COUNTRY</p>
-      <p style="height:40px; text-align:right">
-        <span id="portrait_value" class="portrait_big" style="font-size:20px; display:block">...</span>  
-        <span id="portrait_text" >...</span>
-      </p>  
-
-        <!--
-          SELECT A DOMAIN
-        -->
-        <div id="domain_selection" >
-        <a href="#" id="select_production">
-          <img src="images/icon_production.png" title="Production" class="icon icon_sub" id="icon_production">
-        </a>
-        <!--<a href="#" id="select_trade">TESTING</a>-->
-        <a href="#" id="select_price">
-          <img src="images/icon_price.png" title="Price" class="icon icon_sub" id="icon_price">
-        </a>    
-        <!--<a href="#" id="select_slaughtered">        </a>-->
-        <a href="#" id="select_importAnimals">
-          <img src="images/icon_travel.png" title="Import" class="icon icon_sub" id="icon_import">
-        </a> 
-        <a href="#" id="select_exportAnimals">
-          <img src="images/icon_travel.png" title="Export" class="icon icon_sub" id="icon_export">
-        </a>    
-    </div>
     </div>
 
 
@@ -326,7 +333,7 @@ function highlight_this_item(button, item){
              }
 
 
-            adjust_bar_value_and_width("#slaughter", "Slaughter", slaughter, json.chickens_per_year);
+            adjust_bar_value_and_width("#slaughter", "Production", slaughter, json.chickens_per_year);
             adjust_bar_value_and_width("#population", "Population", json.population_px, p);
             adjust_bar_value_and_width("#import", "Import", json.chickens_import_px, i);
             adjust_bar_value_and_width("#export", "Export", json.chickens_export_px, e);
