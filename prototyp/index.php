@@ -19,13 +19,15 @@
 <!--
 
 TO DO:
-- Möglichkeit KEIN Land auszuwählen
+    - Möglichkeit KEIN Land auszuwählen
 - selectedCountry highlighten (Farbe)
 - Eindeutige Werte (in Zahlen) der Karteneinfärbung entnehmen, Tooltip?
 - Legende für Länderfarben
 - Range für Länderfarben (6 Schritte) (colorbrewer)?
 - Länderfarbe nur auf Partnerländer anwenden, der Rest hat Einheitsfarbe-/Opacity
 - sepia styles
+- dead animals wegnehmen?
+- introtext
 
 -->
   </head>
@@ -51,7 +53,7 @@ TO DO:
     }
     
     .portrait_bar{
-      width:100px; /*changes interactively*/
+      width:0px; /*changes interactively*/
       height:15px;
       background-color:#C8BBA1;/*C6FFCE*/
       white-space: nowrap;
@@ -63,6 +65,10 @@ TO DO:
       .highlightCountry{
         background-color: red;
       }
+
+      p:hover{
+        color: #666; /*bugfix ?*/
+      }
       
 
   </style>
@@ -72,7 +78,7 @@ TO DO:
 
     <div id="wrapper">
     <p class="center" id="title">CHICKEN ROADTRIP</p>
-    <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool.</p>
+    <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool. Use the following map to investigate...</p>
     <div>
 
       <div id="item_selection" class="center">
@@ -316,7 +322,7 @@ function highlight_this_item(button, item){
              }
 
 
-            adjust_bar_value_and_width("#slaughter", "slaughter", slaughter, json.chickens_per_year);
+            adjust_bar_value_and_width("#slaughter", "Slaughter", slaughter, json.chickens_per_year);
             adjust_bar_value_and_width("#population", "Population", json.population_px, p);
             adjust_bar_value_and_width("#import", "Import", json.chickens_import_px, i);
             adjust_bar_value_and_width("#export", "Export", json.chickens_export_px, e);
@@ -345,7 +351,7 @@ function highlight_this_item(button, item){
                 set_portrait_country(country);
                 if(selected_domain!="none"){
                   //DOMAIN SELECTED
-                  if(selected_domain=="production"){set_portrait_text("Slaughter per minute");set_portrait_value(portrait_production_value);}
+                  if(selected_domain=="production"){set_portrait_text("Production per minute");set_portrait_value(portrait_production_value);}
                   if(selected_domain=="price"){set_portrait_text("USD/kilo");set_portrait_value(portrait_price_value);}
                   if(selected_domain=="import"){set_portrait_text("average import distance (km)");set_portrait_value(portrait_import_value);}
                   if(selected_domain=="export"){set_portrait_text("average export distance (km)");set_portrait_value(portrait_export_value);}
