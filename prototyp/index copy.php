@@ -70,10 +70,9 @@ TO DO:
     <p class="center" id="title">CHICKEN ROADTRIP</p>
     <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool.</p>
     <div>
-
       <div id="item_selection" class="center">
         <a href="#" id="select_live">
-            <img src="images/icon_alive.png" title="Chicken live" class="icon icon_main" id="icon_alive">
+          <img src="images/icon_alive.png" title="Chicken live" class="icon icon_main" id="icon_alive">
         </a>
         <a href="#" id="select_meat">
           <img src="images/icon_dead.png" title="Chicken meat" class="icon icon_main" id="icon_meat" style="opacity:0.3">
@@ -82,17 +81,17 @@ TO DO:
       </div>
     </div>
 
-    <div id="portrait">
-      <p id="portrait_country" style="text-align:right">THIS COUNTRY</p>
-      <p style="height:40px; text-align:right">
-        <span id="portrait_value" class="portrait_big" style="font-size:20px; display:block">...</span>  
-        <span id="portrait_text" >...</span>
-      </p>  
+    <div id="portrait" class="center">
+      <p id="portrait_country">THIS COUNTRY</p>
+        <p id="portrait_text" style="height:25px">...</p>
+        <p id="portrait_value" class="portrait_big" style="height:50px">...</p>  
+    </div>
 
-        <!--
-          SELECT A DOMAIN
-        -->
-        <div id="domain_selection" >
+    
+      
+    
+    
+    <div id="domain_selection" >
         <a href="#" id="select_production">
           <img src="images/icon_production.png" title="Production" class="icon icon_sub" id="icon_production">
         </a>
@@ -108,13 +107,6 @@ TO DO:
           <img src="images/icon_travel.png" title="Export" class="icon icon_sub" id="icon_export">
         </a>    
     </div>
-    </div>
-
-    
-      
-    
-    
-    
 
     
     
@@ -220,7 +212,7 @@ function highlight_this_item(button, item){
  function highlight_this_domain(button, domain){
     $('.icon_sub').css("opacity", .3);
     if(selected_domain==domain){
-      selected_domain = "none";
+      selected_domain = false;
     }else{
       selected_domain = domain;
       $(button).css("opacity", 1);  
@@ -267,7 +259,6 @@ function highlight_this_item(button, item){
       var portrait_production_price = 0;
       var portrait_import_value = 0;
       var portrait_export_value = 0;
-      var portrait_trade_value = 0;
     
      function getDataFromDatabase(c){
        
@@ -280,73 +271,49 @@ function highlight_this_item(button, item){
             showChickens : showChicken,
             showPigs : showPig            
           },
+          //gender : set_gender,
 
           success: function(data) {
             var json = JSON.parse(data);
             var c = json.country;
             
             portrait_production_value = json.chickens_production;
-            portrait_price_value = Math.round((json.price / 1000)*100)/100;
-              if(portrait_price_value==0){
-                portrait_price_value="not available";
-              }
-            portrait_import_value = Math.round(json.average_import);
-            portrait_export_value = Math.round(json.average_export);
-            portrait_trade_value = json.total_reporters;
+            portrait_production_price = "99$";
+            portrait_import_value = json.chickens_import;
+            portrait_export_value = Math.round(json.average_dist);
+            
 
-            
-            write_portrait(selectedCountry);
-            
-        
+            if(c!="none"){
+              // COUNTRY SELECTED
+              $('#portrait_country').html(c.toUpperCase());
+              // WRITE PORTRAIT VALUE
+              if(selected_domain=="production"){
+                $('#portrait_value').html(portrait_production_value);
+              }
+              if(selected_domain=="price"){
+                $('#portrait_value').html(portrait_price_value);
+              }
+              if(selected_domain=="import"){
+                $('#portrait_value').html(portrait_import_value);
+              }
+              if(selected_domain=="export"){
+                $('#portrait_value').html(portrait_export_value);
+              }
+            }else{
+              // NO COUNTRY SELECTED
+              $('#portrait_country').html("Select a country");
+             // $('#portrait_text').html("yy");
+             // $('#portrait_value').html("yy");
+            }          
           }             
         });  
         
     }
-
-            function write_portrait(country){
-              if(country!="none"){
-                //COUNTRY SELECTED
-                set_portrait_country(country);
-                if(selected_domain!="none"){
-                  //DOMAIN SELECTED
-                  if(selected_domain=="production"){set_portrait_text("Slaughter per minute");set_portrait_value(portrait_production_value);}
-                  if(selected_domain=="price"){set_portrait_text("USD/kilo");set_portrait_value(portrait_price_value);}
-                  if(selected_domain=="import"){set_portrait_text("average import distance (km)");set_portrait_value(portrait_import_value);}
-                  if(selected_domain=="export"){set_portrait_text("average export distance (km)");set_portrait_value(portrait_export_value);}
-
-                }else{
-                  //NO DOMAIN SELECTED
-                  set_portrait_text("trade partners");
-                  set_portrait_value(portrait_trade_value);  
-                }
-              }else{
-                //NO COUNTRY SELECTED
-                set_portrait_country("Select a country");
-                set_portrait_text("for specific values");
-                set_portrait_value(" ");
-              }
-            }
-
-
-            function set_portrait_country(this_c){
-              this_c = this_c.toUpperCase();
-              $('#portrait_country').html(this_c); 
-            }
-            function set_portrait_text(text){
-              $('#portrait_text').html(text); 
-            }
-
-            function set_portrait_value(value){
-              $('#portrait_value').html(value); 
-            }
-
-            /*
             function set_portrait(number, text){
               $('#portrait_text').html(text); 
               $('#portrait_data_distance').html(number);
               
             }
-            */
 
             function adjust_bar_value_and_width(this_id, text, value){
               $(this_id)
@@ -752,7 +719,7 @@ function highlight_this_item(button, item){
     function colorCountry(data_table, domain, item, element){
       //check if any sub_icon is selected
       //if not, color everything the same color
-      if(selected_domain!="none"){
+      if(selected_domain){
 
       //TRY TO GET COUNTRY FILL DATA FROM DATA BASE
       
@@ -802,7 +769,30 @@ function highlight_this_item(button, item){
               ## PORTRAIT ##
             */
             
- 
+            if(selected_domain=="production"){
+              $('#portrait_text').html("Chickens slaughtered for meat production (per min)");
+              $('#portrait_value').html(portrait_production_value);
+            }
+            if(selected_domain=="price"){
+              $('#portrait_text').html("Some PRICE sentence");
+              $('#portrait_value').html("2");
+              //set_portrait("some other number", "Some price sentence");
+            }
+            if(selected_domain=="import"){
+             $('#portrait_text').html("Some IMPORT sentence");
+             $('#portrait_value').html(portrait_import_value);
+             // set_portrait(average_dist  + " km", "A traded chicken has an average journey of");
+            }
+            if(selected_domain=="export"){
+             $('#portrait_text').html("Some EXPORT sentence");
+             $('#portrait_value').html(portrait_export_value);
+             // set_portrait(average_dist  + " km", "A traded chicken has an average journey of");
+            }
+
+            if(selectedCountry=="none"){
+              $('#portrait_text').html(" ww");
+             $('#portrait_value').html(" ww");
+            }
 
             
 
@@ -847,10 +837,17 @@ function highlight_this_item(button, item){
         }else{
           //if sub_icon is deselected no country gets colored
           d3.selectAll(".country").style("fill","#b7b7b7");
-     
+          if(selectedCountry=="none"){
+            $('#portrait_text').html(" qq"); //reset
+            $('#portrait_value').html(" qq"); //reset  
+          }else{
+            $('#portrait_text').html("Trades with");
+            $('#portrait_value').html("xx countries");
+          }
+
+          
         }
-        write_portrait(selectedCountry);
-      }
+          }
 
     function proportion(value,max,minrange,maxrange) {
       return Math.round(((max-value)/(max))*(maxrange-minrange))+minrange;

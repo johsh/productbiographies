@@ -1,3 +1,7 @@
+div{
+
+}
+
 body{
   margin-top: 15px;
   padding: 0px;
@@ -7,7 +11,6 @@ body{
   width: 100%;
   margin: 0px;
   padding: 0px;
-  
 }
 
 #map{
@@ -59,21 +62,28 @@ a, a:link, a:visited, a:focus, :hover, a:active{
   }
 
 #item_selection{
-  
+  padding-top: 37px;
 }
 
 #domain_selection{
   padding-bottom: 1px;
+  text-align: right;
+  /*
   position: absolute;
   right: 103px;
   top: 300px;
+  */
 }
 
 
 #portrait{
-  
   font-weight: 200;
   color: inherit;
+
+  width: 250px;
+  position: absolute;
+  right: 100px;
+  top: 150px;
 }
 #portrait p#portrait_country{
   

@@ -20,9 +20,12 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	$cattle_import = $chickens_import = $pigs_import
 	= $cattle_export = $chickens_export = $pigs_export 
 	= $cattle_production = $chickens_production = $pigs_production
+	= $chicken_price
 	= 0;
 
-	$all_travel_data = array();
+	$all_travel_data = array(); //get amount of partner countries	
+	$all_travel_import = array(); // get average import km
+	$all_travel_export = array(); // get average export km
 
 
 	/*
@@ -126,6 +129,27 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		
 	}
 
+
+/*	
+	REQUEST: PRICE
+	------------------
+*/
+	$sql_price = "SELECT Country, Value FROM produktbiographien_annualPrices WHERE Country = '$set_country' && Year = '$set_year'";
+	
+	$result_price = mysql_query($sql_price, $link);
+
+		if (!$result_price) {
+		    echo "DB Fehler, konnte die Datenbank nicht abfragen\n";
+		    echo 'MySQL Error: ' . mysql_error();
+		    exit;
+		}
+
+	while ($row = mysql_fetch_assoc($result_price)) {
+
+		$chicken_price = $row['Value']; 
+
+	}
+
 /*	
 	REQUEST: TRADE-MATRIX
 	------------------
@@ -146,6 +170,9 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 
 		$this_partner = $row['PartnerCountry']; 
 		$this_value = adjust_value($row['Element'], $row['Value'], 2);
+		$element = explode(" ", $row['Element']);
+		$this_element = $element[0]; //"Import" or "Export"
+
 		$partner_lat = $partner_lon = 0;
 		
 	/*
@@ -169,18 +196,40 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 				$partner_lon = $row2['LON'];
 			}
 		}
+
 		$dist = distance($this_lat, $this_lon, $partner_lat, $partner_lon);
 		$travel = $dist * $this_value;
 		//echo " >>> distance = " . $dist . "km - value " . $this_value . "<br/>"	;
 
-		$this_travel_data = array(
-			"reporter" => $this_partner,
-			"dist" => $dist,
-			"value" => $this_value,
-			"travel" => $travel
-		);
 
-		$all_travel_data[] = $this_travel_data;
+		
+		$this_travel_data = array(
+				"reporter" => $this_partner,
+				"dist" => $dist,
+				"value" => $this_value,
+				"travel" => $travel
+			);
+
+			$all_travel_data[] = $this_travel_data;
+
+		if($this_element=="Import"){
+			$this_import_data = array(
+				"reporter" => $this_partner,
+				"dist" => $dist,
+				"value" => $this_value,
+				"travel" => $travel
+			);
+			$all_travel_import[] = $this_import_data;
+
+		}else if($this_element=="Export"){
+			$this_export_data = array(
+				"reporter" => $this_partner,
+				"dist" => $dist,
+				"value" => $this_value,
+				"travel" => $travel
+			);
+			$all_travel_export[] = $this_export_data;
+		}
 	}
 
 /*
@@ -201,7 +250,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	REQUEST: PRODUCTION
 	------------------
 */
-	$sql_production = "SELECT Country, Value, Element, Item FROM produktbiographien_production WHERE Country = '$set_country' && Year = '$set_year'";
+	$sql_production = "SELECT Country, Value, Element, Item FROM produktbiographien_LivestockPrimeryProduction WHERE Country = '$set_country' AND Item = 'Meat, chicken' AND Year = '$set_year'";
 	
 	$result_production = mysql_query($sql_production, $link);
 
@@ -218,6 +267,13 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		$production_item = $row['Item'];
 		$production_value = $row['Value'];
 
+		
+
+		$per_year = adjust_value($production_element, $production_value, 2);
+
+		$chickens_production = round($per_year / 365 / 24 / 60);
+
+/*
 		if($production_item == "Cattle"){
 			$cattle_production = adjust_value($production_element, $production_value, 1);
 		}	
@@ -227,6 +283,7 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		if($production_item == "Pigs"){
 			$pigs_production = adjust_value($production_element, $production_value, 1);
 		}
+*/
 	}
 
 
@@ -290,6 +347,11 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		}
 	}
 
+
+	/*
+		CALCULATE PARTNER COUNTRIES
+		= total_reporters
+	*/
 	$total_reporters = $total_distance = $total_value = 0;
 	foreach ($all_travel_data as $key => $value) {
  		//echo "**".$value["reporter"] . "**: " . round($value["dist"]) . "km *(dist)*; " . round($value["value"]). " chickens *(trade)* <br/>";
@@ -297,8 +359,39 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 		$total_distance += $value["dist"];
 		$total_value += $value["value"];
 	};
-
 	$average_dist = $total_distance/$total_reporters;
+	/*
+		CALCULATE AVERAGE IMPORT DISTANCE
+		= average_import
+	*/
+	$import_reporters = $import_distance = $total_import_travel = 0;
+	foreach ($all_travel_import as $key => $value) {
+		$import_reporters++;
+		$import_distance += $value["dist"];
+		$total_import_travel += $value["value"];
+	};
+	if($import_reporters==0){
+		$average_import = 0;	
+	}else{
+		$average_import = $import_distance / $import_reporters;	
+	}
+	/*
+		CALCULATE AVERAGE IMPORT DISTANCE
+		= average_import
+	*/
+	$export_reporters = $export_distance = $total_export_travel = 0;
+	foreach ($all_travel_export as $key => $value) {
+		$export_reporters++;
+		$export_distance += $value["dist"];
+		$total_export_travel += $value["value"];
+	};
+	if($export_reporters==0){
+		$average_export = 0;	
+	}else{
+		$average_export = $export_distance / $export_reporters;	
+	}
+	
+	
 
 	//echo "average_dist: " . round($average_dist) . ", total_value: " . $total_value;
 
@@ -321,7 +414,11 @@ if (!$link = mysql_connect('localhost', 'root', 'root')) {
 	"cattle_production" => $cattle_production,
 	"chickens_production" => $chickens_production,
 	"pigs_production" => $pigs_production,
-	"average_dist" => $average_dist
+	"average_dist" => $average_dist,
+	"average_import" =>$average_import,
+	"average_export" =>$average_export,
+	"total_reporters" => $total_reporters,
+	"price" => $chicken_price
 
 		);
 
