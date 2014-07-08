@@ -457,8 +457,9 @@ thousandFormat = d3.format("0,000");
       //projection = d3.geo.equirectangular()
       //projection = d3.geo.orthographic()
       projection = d3.geo.mercator()
-        .translate([0, 0])
-        .scale(width / 2 / Math.PI);
+        .translate([-10, 60])
+        .scale(width / 2 / Math.PI)
+        ;
 
       path = d3.geo.path()
           .projection(projection);
@@ -1416,7 +1417,7 @@ thousandFormat = d3.format("0,000");
       /* COUNTRY COLORING */
       var _scale;
       if (animalNotPrice) _scale = colorScaleAnimals;
-      else _scale = colorScalePrice;
+      else _scale = colorScalePrice.reverse();
 
       _scale.forEach(function(d,i){
 
