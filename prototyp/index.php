@@ -1034,6 +1034,18 @@ thousandFormat = d3.format("0,000");
 
       links = packageHierarchy(_data);
 
+      maxImport = -1;
+      maxExport = -1;
+
+      _data.forEach(function(_d){
+        if (!isNaN(_d.Import))
+          maxImport = Math.max(parseFloat(_d.Import), maxImport);
+        if (!isNaN(_d.Export))
+          maxExport = Math.max(parseFloat(_d.Export), maxExport);
+      })
+
+              console.log("max: " + maxImport + " " + maxExport);
+
       g.selectAll(".trade")
         .data(links)
         .enter().append("path")
@@ -1051,30 +1063,15 @@ thousandFormat = d3.format("0,000");
             },
             "stroke-width": function(d){ 
               //re-calc maxImport/maxExport
-              maxImport = -1;
-              maxExport = -1;
-
-              Object.keys(dataCombined[simplifyName(d.data.Source)]).forEach(function(k){
-                var _d = dataCombined[simplifyName(d.data.Source)][k];
-                if (_d.Valuetype.toLowerCase().indexOf("import") != -1)
-                  maxImport = Math.max(parseFloat(_d.Value), maxImport);
-                else if (_d.Valuetype.toLowerCase().indexOf("export") != -1)
-                  maxExport = Math.max(parseFloat(_d.Value), maxExport);
-                else {
-                  maxImport = Math.max(parseFloat(_d.Import), maxImport);
-                  maxExport = Math.max(parseFloat(_d.Export), maxExport);
-                }
-
-              });
 
               //return maxStrokeWidth;
 
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
-                return zoomLineWidth * maxStrokeWidth * d.data.Value/maxImport;
+                return Math.max(.7,zoomLineWidth * maxStrokeWidth * d.data.Import/maxImport);
               else if (d.data.Valuetype.toLowerCase().indexOf("export") != -1)
-                return zoomLineWidth * maxStrokeWidth*d.data.Value/maxExport;
+                return Math.max(.7, zoomLineWidth * maxStrokeWidth*d.data.Export/maxExport);
               else {
-                return zoomLineWidth * maxStrokeWidth*(parseInt(d.data.Import)+parseInt(d.data.Export))/(maxImport+maxExport);
+                return Math.max(.7, zoomLineWidth * maxStrokeWidth*(parseInt(d.data.Import)+parseInt(d.data.Export))/(maxImport+maxExport));
               }
               
             },
@@ -1084,6 +1081,8 @@ thousandFormat = d3.format("0,000");
             return line(d.points);
           })
           .on("mouseover", function(d){
+
+            //d3.select(this).style("stroke", "lightgrey");
 
             var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
 
@@ -1100,6 +1099,10 @@ thousandFormat = d3.format("0,000");
                 .html(_string)
           })
           .on("mouseout",  function(d,i) {
+            d3.select(this).style("stroke", function(d){
+              return colorScaleTradeLine(d.data.Value);
+            });
+
             tooltip.classed("hidden", true);
           })
           .call(zoom)
@@ -1115,6 +1118,9 @@ thousandFormat = d3.format("0,000");
                 cx: projection(countries[selectedCountry].coordinates)[0],
                 cy: projection(countries[selectedCountry].coordinates)[1],
                 r: 3,
+              })
+              .on("click", function(){
+                clickCountry({properties: {name: selectedCountry}});
               })
           }
     }
