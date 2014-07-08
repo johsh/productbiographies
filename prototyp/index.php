@@ -170,7 +170,7 @@ TO DO:
       We used data from <a href="http://faostat3.fao.org/">FAOSTAT</a>. 
       All data shown refer to the year 2011. 
       <br/>
-      <br/>*If not declared differently, the unit 'head' is used.</p>
+      <br/>*If not declared differently, the unit 'head per annum' is used.</p>
   </div>
   <script>
   var range_by_maximum = true;
@@ -1416,7 +1416,7 @@ thousandFormat = d3.format("0,000");
       var boxSize = 40;
       /* COUNTRY COLORING */
       var _scale;
-      if (animalNotPrice) _scale = colorScaleAnimals;
+      if (animalNotPrice) _scale = colorScaleAnimals.reverse();
       else _scale = colorScalePrice.reverse();
 
       _scale.forEach(function(d,i){
@@ -1444,7 +1444,7 @@ thousandFormat = d3.format("0,000");
         });
 
       svg.append("text")
-        .text(maxValueCountryColor)
+        .text(thousandFormat(maxValueCountryColor))
         .attr({
           class: "legend",
           x: 241-width/2+5*boxSize,
