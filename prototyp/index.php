@@ -134,6 +134,7 @@ TO DO:
       </div>
       <!-- END PORTRAIT -->
 
+      <div id="statistics_line"></div>
       <!-- BEGIN BAR CHARTS -->
       <div id="statistics_container">
         <div id="statistics_country" style="margin-bottom:5px">GERMANY</div>

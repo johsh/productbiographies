@@ -72,14 +72,13 @@ a, a:link, a:visited, a:focus, :hover, a:active{
   padding-top: 37px;
 }
 
-
-
 #info_container{
   margin-left: auto;
   margin-right: auto;
   width: 625px;
   height: 130px;
   margin-bottom: 0px;
+  position: relative;
   }
 #portrait{
   width: 300px; /*same as statistics*/
@@ -98,7 +97,14 @@ a, a:link, a:visited, a:focus, :hover, a:active{
   margin-left: 25px;
   margin-top: 2px;
 }
-
+#statistics_line{
+width: 240px;
+height: 92px;
+border-right: thin solid #dadada;
+position: absolute;
+top: 22px;
+right: 0px;
+}
 
 
 #portrait p#portrait_country{
