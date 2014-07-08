@@ -286,7 +286,9 @@ function highlight_this_item(button, item){
     var colorScale;
     var colorScalePrice = ['#668f3b', '#557630', '#405b23', '#304819', '#1e330d'];
 
-    var colorScaleAnimals = ['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
+    var colorScaleAnimals = ['#484339','#675f52','#837969','#ad9f8b','#cfbda5'];//['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
+
+
 
     setup(width,height);
 
