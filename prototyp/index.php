@@ -124,10 +124,10 @@ TO DO:
             <img src="images/icon_price.png" title="Price" class="icon icon_sub" id="icon_price">
           </a>    
           <a href="#" id="select_importAnimals">
-            <img src="images/icon_travel.png" title="Import" class="icon icon_sub" id="icon_import">
+            <img src="images/icon_import.png" title="Import" class="icon icon_sub" id="icon_import">
           </a> 
           <a href="#" id="select_exportAnimals">
-            <img src="images/icon_travel.png" title="Export" class="icon icon_sub" id="icon_export">
+            <img src="images/icon_export.png" title="Export" class="icon icon_sub" id="icon_export">
           </a>    
         </div>
 
