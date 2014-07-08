@@ -87,10 +87,10 @@ TO DO:
       <img style="width:75px; height:75px; display:block; padding-bottom: 15px" class="center" src="images/icon_alive.png">
       <p class="center" id="title">CHICKEN ROADTRIP</p>
       <p class="center" id="intro">
-        Farmed live animals are traded around the world for meat production. 
-        The grwoing distance between production location and processing location is caused by several reasons 
-        such as low prices of workforce <!--, dropping prices of meat proceedings in genetically modified food and 
-        factory farmy and the--> or power of transnational companies as we know from several sources like the 
+        Farmed animals are traded around the world alive for meat production. 
+        The growing distance between production location and processing location is caused by several reasons 
+        such as low prices of workforce, hygiene rules <!--, dropping prices of meat proceedings in genetically modified food and 
+        factory farmy and the--> or power of transnational companies as we know from sources like the 
         <i><a href='http://www.bund.net/fileadmin/bundnet/publikationen/landwirtschaft/140328_bund_landwirtschaft_meatatlas2014.pdf' target="_blank">Meat Atlas</a></i>. 
         While the results of this intense production and trading are complex, 
         we offer a tool to focus on the actual distances, that Animals travel alive and focus on Chicken, 
