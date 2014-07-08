@@ -406,9 +406,11 @@ function highlight_this_item(button, item){
             }
             */
 
+thousandFormat = d3.format("0,000");
+
             function adjust_bar_value_and_width(this_id, text, px, real_value){
               $(this_id)
-                .html(real_value + " " + "<span style='color:#aaa'>"+text+"</span>")
+                .html(thousandFormat(real_value) + " " + "<span style='color:#aaa'>"+text+"</span>")
                 .animate({width: px + "px"},500);
             }
             
