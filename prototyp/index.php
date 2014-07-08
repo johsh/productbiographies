@@ -1017,7 +1017,7 @@ thousandFormat = d3.format("0,000");
     var maxExport = -1;
 
     var zoomLineWidth = 1;
-    var maxStrokeWidth = .8;
+    var maxStrokeWidth = 10;
 
     /*
         DRAW BUNDLE EDGES():
@@ -1065,7 +1065,7 @@ thousandFormat = d3.format("0,000");
 
               });
 
-              return maxStrokeWidth;
+              //return maxStrokeWidth;
 
               if (d.data.Valuetype.toLowerCase().indexOf("import") != -1)
                 return zoomLineWidth * maxStrokeWidth * d.data.Value/maxImport;
@@ -1088,9 +1088,9 @@ thousandFormat = d3.format("0,000");
             var _string = d.data.Source +" to "+d.data.Target+"\n";
 
             if (!isNaN(d.data.Import) && d.data.Import > 0)
-              _string += "\tImport "+d.data.Import*1000+" chickens\n";
+              _string += "\t"+thousandFormat(d.data.Import*1000)+" Import\n";
             if (!isNaN(d.data.Export) && d.data.Export > 0)
-              _string += "\tExport: "+d.data.Export*1000+" chickens\n";
+              _string += "\t"+thousandFormat(d.data.Export*1000)+" Export\n";
 
             tooltip
                 .classed("hidden", false)

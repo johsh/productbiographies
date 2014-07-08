@@ -177,6 +177,6 @@ div.tooltip {
 }
 
 .link{
-  stroke-cap: round;
+  stroke-linecap:round;
 }
 
