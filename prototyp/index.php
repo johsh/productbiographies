@@ -366,7 +366,7 @@ function highlight_this_item(button, item){
                 set_portrait_country(country);
                 if(selected_domain!="none"){
                   //DOMAIN SELECTED
-                  if(selected_domain=="production"){set_portrait_text("Production per minute");set_portrait_value(portrait_production_value);}
+                  if(selected_domain=="production"){set_portrait_text("Animals per minute");set_portrait_value(portrait_production_value);}
                   if(selected_domain=="price"){set_portrait_text("USD/kilo");set_portrait_value(portrait_price_value);}
                   if(selected_domain=="import"){set_portrait_text("average import distance (km)");set_portrait_value(portrait_import_value);}
                   if(selected_domain=="export"){set_portrait_text("average export distance (km)");set_portrait_value(portrait_export_value);}
