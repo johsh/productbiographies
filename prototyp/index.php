@@ -170,6 +170,7 @@ TO DO:
       <br/>We used data from <a href="http://faostat3.fao.org/">FAOSTAT</a>. 
       All data shown refer to the year 2011. 
       <br/>
+<<<<<<< HEAD
       <br/>*If not declared differently, the unit 'head' is used.
 
       <br/>
@@ -183,6 +184,8 @@ TO DO:
       <br/>
       </p>
 
+=======
+>>>>>>> FETCH_HEAD
       <br/>*If not declared differently, the unit 'head per annum' is used.</p>
   </div>
   <script>
