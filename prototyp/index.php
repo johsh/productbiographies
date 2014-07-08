@@ -449,6 +449,7 @@ thousandFormat = d3.format("0,000");
       .range([90, -90]);
 
     function setup(width,height){
+      //projection = d3.geo.equirectangular()
       //projection = d3.geo.orthographic()
       projection = d3.geo.mercator()
         .translate([0, 0])
