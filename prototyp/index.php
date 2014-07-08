@@ -86,7 +86,15 @@ TO DO:
     <div id="wrapper">
       <img style="width:75px; height:75px; display:block; padding-bottom: 15px" class="center" src="images/icon_alive.png">
       <p class="center" id="title">CHICKEN ROADTRIP</p>
-      <p class="center" id="intro">This is a short intro text that tells a bit about our intention and how everything works. <br/>Also who we are, what we do, what hobbies we have, and how many coffee we had for breakfast. That shall give the user motivation to explore the data set with our nice tool. Use the following map to investigate...</p>
+      <p class="center" id="intro">
+        Farmed live animals are traded around the world for meat production. 
+        The grwoing distance between production location and processing location is caused by several reasons 
+        such as low prices of workforce <!--, dropping prices of meat proceedings in genetically modified food and 
+        factory farmy and the--> or power of transnational companies as we know from several sources like the 
+        <i><a href='http://www.bund.net/fileadmin/bundnet/publikationen/landwirtschaft/140328_bund_landwirtschaft_meatatlas2014.pdf' target="_blank">Meat Atlas</a></i>. 
+        While the results of this intense production and trading are complex, 
+        we offer a tool to focus on the actual distances, that Animals travel alive and focus on Chicken, 
+        since these are the ones that travel most.</p>
     
       <!--
         SELECTION DEAD OR ALIVE
@@ -155,10 +163,14 @@ TO DO:
     <div class="button" id="pig" onclick="togglePig()">[pig]</div>
 -->
     <div id="map"></div>
-    <div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>
+    <!--<div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>-->
 
 
-    <p class="center">src: <a href="http://faostat3.fao.org/">FAOSTAT</a></p>
+    <p class="center" style="margin-top:30px">
+      We used data from <a href="http://faostat3.fao.org/">FAOSTAT</a>. 
+      All data shown refer to the year 2011. 
+      <br/>
+      <br/>*If not declared differently, the unit 'head' is used.</p>
   </div>
   <script>
   var range_by_maximum = true;
@@ -390,7 +402,7 @@ function highlight_this_item(button, item){
             function set_portrait_country(this_c){
               this_c = this_c.toUpperCase();
               $('#portrait_country').html(this_c); 
-              $('#statistics_country').html(this_c); 
+              $('#statistics_country').html(this_c + "<span style='color:#ccc'>*</span>"); 
             }
             function set_portrait_text(text){
               $('#portrait_text').html(text); 
