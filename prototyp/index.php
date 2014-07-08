@@ -16,20 +16,6 @@
     <script src="resources/topojson.v1.min.js"></script>
     <script type="text/javascript" src="resources/jquery-1.10.2.min.js"></script>
 
-<!--
-
-TO DO:
-    - Möglichkeit KEIN Land auszuwählen
-- selectedCountry highlighten (Farbe)
-- Eindeutige Werte (in Zahlen) der Karteneinfärbung entnehmen, Tooltip?
-- Legende für Länderfarben
-- Range für Länderfarben (6 Schritte) (colorbrewer)?
-- Länderfarbe nur auf Partnerländer anwenden, der Rest hat Einheitsfarbe-/Opacity
-- sepia styles
-- dead animals wegnehmen?
-- introtext
-
--->
   </head>
 
   <style>
@@ -166,24 +152,26 @@ TO DO:
     <!--<div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>-->
 
 
-    <p class="center" style="margin-top:30px">
+    <p class="center" style="margin-top:30px; width:750px">
       <br/>We used data from <a href="http://faostat3.fao.org/">FAOSTAT</a>. 
       All data shown refer to the year 2011. 
-      <br/>
+
       <!--<br/>*If not declared differently, the unit 'head' is used.-->
 
       <br/>
+      <br/>*If not declared differently, the unit 'head per annum' is used.
       <br/>
       <br/>
-
-      A student project by Anna Pawlowska, Johannes Schleith and Martin von Lupin
-      <br/>Supervised by Sebastian Meier 
+      <br/>
+      Chicken Roadtrip is a student project by Anna Pawlowska, Johannes Schleith and Martin von Lupin
+       <br/>Supervised by Sebastian Meier 
       <br/>University of Applied Sciences Potsdam, 2014
       <br/>
       <br/>
 
 
-      <br/>*If not declared differently, the unit 'head per annum' is used.</p>
+      </p>
+            <br/>
   </div>
   <script>
   var range_by_maximum = true;
