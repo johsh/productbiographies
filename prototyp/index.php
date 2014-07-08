@@ -154,11 +154,10 @@ TO DO:
     <div class="button" id="pig" onclick="togglePig()">[pig]</div>
 -->
     <div id="map"></div>
-    <img src="resources/legende.png">
     <div id="range_type" style="background-color:yellow; float:right">range type: maximum</div>
 
 
-    <p class="center">src: FAOSTAT</p>
+    <p class="center">src: <a href="http://faostat3.fao.org/">FAOSTAT</a></p>
   </div>
   <script>
   var range_by_maximum = true;
@@ -448,6 +447,7 @@ function highlight_this_item(button, item){
           .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
           .call(zoom)
           /*.on("drag", function() {
+            console.log("drafg");
             var p = d3.mouse(this);
             projection.rotate([λ(p[0]), φ(height/2)]);
             svg.selectAll("path").attr("d", path);
@@ -626,9 +626,9 @@ function highlight_this_item(button, item){
     */
     var dataCombined = {};
 
-        function loadData2(){
-          // LIKE loadData()
-          // JUST CHANGED THE SOURCE tradeDataChicken
+    function loadData2(){
+      // LIKE loadData()
+      // JUST CHANGED THE SOURCE tradeDataChicken
 
       /* LIVING CHICKEN DATA */
       d3.csv("data/matrixChickenDeadAlive.csv", function(error, _data){ 
@@ -752,7 +752,7 @@ function highlight_this_item(button, item){
         })
         data = _dataCombined;
 
-        clickCountry({properties: {name: "germany"}});
+        clickCountry({properties: {name: "Germany"}});
       });
 
     }
@@ -760,7 +760,7 @@ function highlight_this_item(button, item){
     /*
         FILTERS DATA BY FOLLOWING CRITERIA
     */
-    var selectedCountry = "germany";
+    var selectedCountry = "Germany";
 
     
     // TBC var selectedYear = 2011;
@@ -771,7 +771,7 @@ function highlight_this_item(button, item){
 
     function filterData(){
       return data.filter(function(d){
-        return (d.Source == selectedCountry)// || d.Target == selectedCountry) 
+        return (d.Source == selectedCountry && d.Value > 0)// || d.Target == selectedCountry) 
                 && (
                       (showCattle && d.Product == "Cattle") ||
                       (showChicken && d.Product == "Chickens") ||
@@ -1081,12 +1081,18 @@ function highlight_this_item(button, item){
           .on("mouseover", function(d){
 
             var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
-              tooltip
+
+            var _string = d.data.Source +" to "+d.data.Target+"\n";
+
+            if (!isNaN(d.data.Import) && d.data.Import > 0)
+              _string += "\tImport "+d.data.Import*1000+" chickens\n";
+            if (!isNaN(d.data.Export) && d.data.Export > 0)
+              _string += "\tExport: "+d.data.Export*1000+" chickens\n";
+
+            tooltip
                 .classed("hidden", false)
                 .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
-                .html(d.data.Source + " --> " + d.data.Target + "\n"+ 
-                      d.data.Product + " = " + d.data.Value + " " + d.data.Valuetype + ": "+
-                      countries[d.data.Source].parent.name + " " + countries[d.data.Target].parent.name)
+                .html(_string)
           })
           .on("mouseout",  function(d,i) {
             tooltip.classed("hidden", true);
@@ -1290,7 +1296,6 @@ function highlight_this_item(button, item){
           .attr("id", function(d,i) { return d.id; })
           .attr("title", function(d,i) { return d.properties.name; })
           .style("fill", "#b7b7b7");
-          //.style("fill", function(d, i) { return d.properties.color; });
 
       //tooltips
       country
@@ -1347,7 +1352,7 @@ function highlight_this_item(button, item){
             y2: 34-height/2+i*16,
           })
           .style({
-            "stroke-width": 4,
+            "stroke-width": 2,
             stroke: colorbrewer.RdYlBu[9][d],
           })
           ;
@@ -1405,7 +1410,7 @@ function highlight_this_item(button, item){
         .attr({
           class: "legend",
           x: 241-width/2,
-          y: 51-height/2,
+          y: 53-height/2,
         });
 
       svg.append("text")
@@ -1413,7 +1418,7 @@ function highlight_this_item(button, item){
         .attr({
           class: "legend",
           x: 241-width/2+5*boxSize,
-          y: 51-height/2,
+          y: 53-height/2,
         })
         .style({
           "text-anchor": "end",
@@ -1425,7 +1430,7 @@ function highlight_this_item(button, item){
             class: "legend",
             x1: 241-width/2,
             y1: 65-height/2,
-            x2: 241-width/2+30,
+            x2: 241-width/2+25,
             y2: 65-height/2,
           })
           .style({
@@ -1438,7 +1443,7 @@ function highlight_this_item(button, item){
         .text("No data available")
         .attr({
           class: "legend",
-          x: 281-width/2,
+          x: 276-width/2,
           y: 70-height/2,
         })
           
@@ -1462,18 +1467,23 @@ function highlight_this_item(button, item){
         KP WAS DIE HIER MACHT
     */
 
-    function move() {
+    function move(){
 
       var t = d3.event.translate;
       var s = d3.event.scale;  
       var h = height / 3;
       
-      t[0] = Math.min(width / 2 * (s - 1), Math.max(width / 2 * (1 - s), t[0]));
-      t[1] = Math.min(height / 2 * (s - 1) + h * s, Math.max(height / 2 * (1 - s) - h * s, t[1]));
+      //t[0] = Math.min(width / 2 * (s - 1), Math.max(width / 2 * (1 - s), t[0]));
+      //t[1] = Math.min(height / 2 * (s - 1) + h * s, Math.max(height / 2 * (1 - s) - h * s, t[1]));
 
       zoom.translate(t);
       g.style("stroke-width", 1 / s).attr("transform", "translate(" + t + ")scale(" + s + ")");
+      //g.style("stroke-width", 1 / s).attr("transform", "scale(" + s + ")");
 
+      /* ROTATE GLOBE */
+      /*var p = d3.mouse(this);
+      projection.rotate([λ(p[0]), φ(height/2)]);
+      svg.selectAll("path").attr("d", path);*/
 
       //zoomLineWidth = 1-s/10;
       //updateBundledEdges();
