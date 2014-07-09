@@ -299,8 +299,10 @@ function highlight_this_item(button, item){
 
     var colorScale;
     var colorScalePrice = ['#668f3b', '#557630', '#405b23', '#304819', '#1e330d'];
+    var colorScalePrice_map = ['#1e330d','#304819','#405b23','#557630','#668f3b'];
 
-    var colorScaleAnimals = ['#484339','#675f52','#837969','#ad9f8b','#cfbda5'];//['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
+    var colorScaleAnimals = ['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
+    var colorScaleAnimals_map = ['#484339','#675f52','#837969','#ad9f8b','#cfbda5'];//['#cfbda5', '#ad9f8b', '#837969', '#675f52', '#484339'];
 
 
 
@@ -872,11 +874,16 @@ thousandFormat = d3.format("0,000");
             d3.selectAll(".country").style("fill","#e0e0e0"); //"deselect" all countries
             data.forEach(function(d){
 
+
                 var color;
-                if (item == "Meat live weight, chicken") 
-                  color = colorScalePrice[proportion(d.Value,maxValueCountryColor,0,4)];
-                else 
-                  color = colorScaleAnimals[proportion(d.Value,maxValueCountryColor,0,4)];
+                if (item == "Meat live weight, chicken") {
+                  
+                  color = colorScalePrice_map[proportion(d.Value,maxValueCountryColor,0,4)];
+                }
+                else {
+                  color = colorScaleAnimals_map[proportion(d.Value,maxValueCountryColor,0,4)];
+                  
+                }
 
                 d3.selectAll("."+simplifyName(d.Country)).style("fill", color);
 
@@ -1417,8 +1424,8 @@ thousandFormat = d3.format("0,000");
       var boxSize = 40;
       /* COUNTRY COLORING */
       var _scale;
-      if (animalNotPrice) _scale = colorScaleAnimals.reverse();
-      else _scale = colorScalePrice.reverse();
+      if (animalNotPrice) _scale = colorScaleAnimals;//.reverse();
+      else _scale = colorScalePrice;//.reverse();
 
       _scale.forEach(function(d,i){
 
@@ -1466,7 +1473,7 @@ thousandFormat = d3.format("0,000");
           })
           .style({
             "stroke-width": 10,
-            stroke: "#b7b7b7",
+            stroke: "b7b7b7",
           })
           ;
 
