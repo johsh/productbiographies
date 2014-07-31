@@ -4,7 +4,10 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+  <head profile="http://www.w3.org/2005/10/profile">
+  <link rel="icon" 
+      type="image/png" 
+      href="http://martinvonlupin.de/roadtrip/images/favicon.png">
     <meta charset="utf-8">
     <title>Roadtrip</title>
 
